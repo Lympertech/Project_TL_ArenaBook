@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Facility Manager Dashboard</h1>
+<p class="mb-4">Welcome, {{ user.username }}.</p>
+
+<div class="list-group col-md-7">
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manager_new' %}">
+        UC-10 Submit Facility
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manage_rules' facility_id=1 %}">
+        UC-08 Manage Booking Rules placeholder
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manage_cancellation_policy' facility_id=1 %}">
+        UC-09 Manage Cancellation Policy placeholder
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manage_fields' facility_id=1 %}">
+        UC-11 Manage Fields placeholder
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manage_field_slots' field_id=1 %}">
+        UC-12 Manage Slots placeholder
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:manage_unavailability' field_id=1 %}">
+        UC-13 Declare Temporary Unavailability placeholder
+    </a>
+</div>
+{% endblock %}

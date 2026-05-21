@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">User Dashboard</h1>
+<p class="mb-4">Welcome, {{ user.username }}.</p>
+
+<div class="list-group col-md-6">
+    <a class="list-group-item list-group-item-action" href="{% url 'facilities:search' %}">
+        Search Facilities
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'bookings:my_bookings' %}">
+        My Bookings
+    </a>
+</div>
+{% endblock %}

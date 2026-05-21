@@ -48,20 +48,75 @@ Copy-Item .env.example .env
 
 Then fill in `SECRET_KEY` in `.env`.
 
-5. Run migrations later, after verifying the skeleton and before using Django's database-backed features:
+5. Check the project and create database migrations:
+
+If this local database was migrated before the custom `accounts.User` model was added, recreate the local development database first so the custom user model is part of the initial schema.
 
 ```powershell
 python manage.py check
 ```
 
 ```powershell
+python manage.py makemigrations
+```
+
+6. Apply migrations:
+
+```powershell
 python manage.py migrate
 ```
 
-6. Run the development server:
+7. Create a Django admin superuser:
+
+```powershell
+python manage.py createsuperuser
+```
+
+8. Seed demo data:
+
+```powershell
+python manage.py seed_demo
+```
+
+Demo users created by `seed_demo`:
+
+- `user` / `password123`
+- `manager` / `password123`
+- `sysadmin` / `password123`
+
+9. Run the development server:
 
 ```powershell
 python manage.py runserver
 ```
 
-Database models, forms, tests, authentication behavior, booking logic, payment logic, approval logic, and availability or conflict logic will be implemented in later steps after this project skeleton is verified.
+## Authentication and Roles
+
+The project now includes basic authentication and role-based access guards.
+
+Register a public account at:
+
+```text
+http://127.0.0.1:8000/accounts/register/
+```
+
+Public registration supports only these roles:
+
+- `USER`
+- `FACILITY_MANAGER`
+
+`SYSTEM_ADMIN` users must be created through Django admin or `seed_demo`.
+
+Login at:
+
+```text
+http://127.0.0.1:8000/accounts/login/
+```
+
+After login or registration, users are redirected by role:
+
+- `USER` -> `/accounts/user/dashboard/`
+- `FACILITY_MANAGER` -> `/facilities/manager/`
+- `SYSTEM_ADMIN` -> `/facilities/admin-panel/pending/`
+
+The current step implements only authentication, role redirects, role guards, and simple dashboards. Business logic for search, availability, booking creation, payment, booking modification, booking cancellation, facility approval, booking rules, slots, and temporary unavailability will be implemented in later steps after the sequence diagrams and class diagram are verified.
