@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-2">UC-11 Create or Update Field</h1>
+<p class="mb-4">{{ facility.name }}</p>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h2 class="h5">Existing Fields</h2>
+        {% if fields %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Sport</th>
+                        <th>Surface</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for field in fields %}
+                    <tr>
+                        <td>{{ field.name }}</td>
+                        <td>{{ field.sport_type }}</td>
+                        <td>{{ field.surface_type }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_fields' facility_id=facility.id %}?edit={{ field.id }}">
+                                Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No fields created yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+        <h2 class="h5">{% if editing_field %}Update Field{% else %}Create Field{% endif %}</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if editing_field %}
+            <input type="hidden" name="field_id" value="{{ editing_field.id }}">
+            {% endif %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">
+                {% if editing_field %}Update Field{% else %}Create Field{% endif %}
+            </button>
+            {% if editing_field %}
+            <a class="btn btn-outline-secondary" href="{% url 'facilities:manage_fields' facility_id=facility.id %}">Cancel Edit</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -119,4 +119,20 @@ After login or registration, users are redirected by role:
 - `FACILITY_MANAGER` -> `/facilities/manager/`
 - `SYSTEM_ADMIN` -> `/facilities/admin-panel/pending/`
 
-The current step implements only authentication, role redirects, role guards, and simple dashboards. Business logic for search, availability, booking creation, payment, booking modification, booking cancellation, facility approval, booking rules, slots, and temporary unavailability will be implemented in later steps after the sequence diagrams and class diagram are verified.
+## Facility Manager and Admin Workflows
+
+The project now includes basic facility lifecycle and setup workflows:
+
+- UC-10 Submit Facility
+- UC-14 Approve Facility Submission
+- UC-08 Manage Booking Rules
+- UC-09 Manage Cancellation Policy
+- UC-11 Create or Update Field
+
+Facility managers can submit facilities, view only their own facilities, manage booking rules, manage cancellation policy, and create or update fields for their facilities.
+
+System admins can view pending facility submissions and approve or reject them.
+
+UC-12 Create or Update Field Slots and UC-13 Declare Temporary Field Unavailability will be implemented later.
+
+Business logic for search, availability, booking creation, payment, booking modification, booking cancellation, slot conflict handling, field slots, and temporary unavailability will be implemented in later steps after the sequence diagrams and class diagram are verified.

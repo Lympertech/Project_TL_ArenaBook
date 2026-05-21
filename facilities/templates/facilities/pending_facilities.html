@@ -2,5 +2,46 @@
 
 {% block content %}
 <h1 class="h3 mb-3">{{ title }}</h1>
-<p>System admin placeholder. Facility approval business logic will be added later.</p>
+
+{% if pending_facilities %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Manager</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for facility in pending_facilities %}
+            <tr>
+                <td>{{ facility.name }}</td>
+                <td>{{ facility.location }}</td>
+                <td>{{ facility.manager.username }}</td>
+                <td class="d-flex gap-2">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="facility_id" value="{{ facility.id }}">
+                        <button class="btn btn-sm btn-success" type="submit" name="action" value="approve">
+                            Approve
+                        </button>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="facility_id" value="{{ facility.id }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit" name="action" value="reject">
+                            Reject
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No pending facility submissions.</p>
+{% endif %}
 {% endblock %}

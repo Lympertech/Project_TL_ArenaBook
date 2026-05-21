@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">UC-10 Submit Facility</h1>
+
+<form method="post" class="col-md-8 col-lg-6" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Submit Facility</button>
+    <a class="btn btn-outline-secondary" href="{% url 'facilities:manager_dashboard' %}">Cancel</a>
+</form>
+{% endblock %}
