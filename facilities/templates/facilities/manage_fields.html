@@ -15,7 +15,7 @@
                         <th>Name</th>
                         <th>Sport</th>
                         <th>Surface</th>
-                        <th></th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,9 +24,15 @@
                         <td>{{ field.name }}</td>
                         <td>{{ field.sport_type }}</td>
                         <td>{{ field.surface_type }}</td>
-                        <td>
+                        <td class="d-flex flex-wrap gap-2">
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_fields' facility_id=facility.id %}?edit={{ field.id }}">
                                 Edit
+                            </a>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_field_slots' field_id=field.id %}">
+                                UC-12 Slots
+                            </a>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_unavailability' field_id=field.id %}">
+                                UC-13 Unavailability
                             </a>
                         </td>
                     </tr>

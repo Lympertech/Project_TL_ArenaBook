@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-2">UC-13 Declare Temporary Field Unavailability</h1>
+<p class="mb-4">{{ field.facility.name }} - {{ field.name }}</p>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h2 class="h5">Existing Temporary Unavailability</h2>
+        {% if unavailabilities %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unavailability in unavailabilities %}
+                    <tr>
+                        <td>{{ unavailability.start_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>{{ unavailability.end_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>{{ unavailability.reason }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No temporary unavailability declared yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+        <h2 class="h5">Declare Unavailability</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">Save Unavailability</button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'facilities:manage_fields' facility_id=field.facility.id %}">Back to Fields</a>
+    <a class="btn btn-outline-secondary" href="{% url 'facilities:manager_dashboard' %}">Manager Dashboard</a>
+</div>
+{% endblock %}

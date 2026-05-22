@@ -128,11 +128,18 @@ The project now includes basic facility lifecycle and setup workflows:
 - UC-08 Manage Booking Rules
 - UC-09 Manage Cancellation Policy
 - UC-11 Create or Update Field
+- UC-12 Create or Update Field Slots
+- UC-13 Declare Temporary Field Unavailability
 
-Facility managers can submit facilities, view only their own facilities, manage booking rules, manage cancellation policy, and create or update fields for their facilities.
+Facility managers can submit facilities, view only their own facilities, manage booking rules, manage cancellation policy, create or update fields, create or update field slots, and declare temporary field unavailability for their facilities.
 
 System admins can view pending facility submissions and approve or reject them.
 
-UC-12 Create or Update Field Slots and UC-13 Declare Temporary Field Unavailability will be implemented later.
+The slot and temporary unavailability workflows include:
 
-Business logic for search, availability, booking creation, payment, booking modification, booking cancellation, slot conflict handling, field slots, and temporary unavailability will be implemented in later steps after the sequence diagrams and class diagram are verified.
+- validation that start date and time is before end date and time
+- prevention of overlapping slots for the same field
+- prevention of slot and unavailability conflicts with confirmed bookings
+- duplicate prevention for temporary unavailability periods
+
+Business logic for search, final availability calculation, booking creation, payment, booking modification, booking cancellation, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.

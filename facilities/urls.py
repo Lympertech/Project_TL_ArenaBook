@@ -19,12 +19,12 @@ urlpatterns = [
     path("manager/<int:facility_id>/fields/", views.manage_fields_view, name="manage_fields"),
     path(
         "manager/fields/<int:field_id>/slots/",
-        views.manage_field_slots,
+        views.manage_slots_view,
         name="manage_field_slots",
     ),
     path(
         "manager/fields/<int:field_id>/unavailability/",
-        views.manage_unavailability,
+        views.declare_unavailability_view,
         name="manage_unavailability",
     ),
     path("admin-panel/pending/", views.pending_facilities_view, name="admin_pending"),

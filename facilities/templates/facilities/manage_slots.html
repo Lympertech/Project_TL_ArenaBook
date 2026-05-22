@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-2">UC-12 Create or Update Field Slots</h1>
+<p class="mb-4">{{ field.facility.name }} - {{ field.name }}</p>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h2 class="h5">Existing Slots</h2>
+        {% if slots %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot in slots %}
+                    <tr>
+                        <td>{{ slot.start_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>{{ slot.end_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_field_slots' field_id=field.id %}?edit={{ slot.id }}">
+                                Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No slots created yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+        <h2 class="h5">{% if editing_slot %}Update Slot{% else %}Create Slot{% endif %}</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if editing_slot %}
+            <input type="hidden" name="slot_id" value="{{ editing_slot.id }}">
+            {% endif %}
+            {{ form.as_p }}
+            <button class="btn btn-primary" type="submit">
+                {% if editing_slot %}Update Slot{% else %}Create Slot{% endif %}
+            </button>
+            {% if editing_slot %}
+            <a class="btn btn-outline-secondary" href="{% url 'facilities:manage_field_slots' field_id=field.id %}">Cancel Edit</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'facilities:manage_fields' facility_id=field.facility.id %}">Back to Fields</a>
+    <a class="btn btn-outline-secondary" href="{% url 'facilities:manager_dashboard' %}">Manager Dashboard</a>
+</div>
+{% endblock %}

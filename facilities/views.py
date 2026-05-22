@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -7,8 +9,24 @@ from .forms import (
     CancellationPolicyForm,
     FacilityForm,
     FieldForm,
+    SlotForm,
+    TemporaryUnavailabilityForm,
 )
-from .models import BookingRules, CancellationPolicy, Facility, Field
+from .models import (
+    BookingRules,
+    CancellationPolicy,
+    Facility,
+    Field,
+    Slot,
+    TemporaryUnavailability,
+)
+from .services import (
+    duplicate_temporary_unavailability,
+    slot_conflicts_with_confirmed_bookings,
+    slot_overlaps_existing_slots,
+    unavailability_conflicts_with_confirmed_bookings,
+    validate_time_range,
+)
 
 
 def search(request):
@@ -123,13 +141,136 @@ def manage_fields_view(request, facility_id):
 
 
 @facility_manager_required
-def manage_field_slots(request, field_id):
-    return HttpResponse(f"UC-12 Create or Update Field Slots for field {field_id}")
+def manage_slots_view(request, field_id):
+    field = get_object_or_404(
+        Field.objects.select_related("facility"),
+        id=field_id,
+        facility__manager=request.user,
+    )
+    editing_slot = None
+
+    edit_slot_id = request.GET.get("edit")
+    if edit_slot_id:
+        editing_slot = get_object_or_404(Slot, id=edit_slot_id, field=field)
+
+    if request.method == "POST":
+        slot_id = request.POST.get("slot_id")
+        if slot_id:
+            editing_slot = get_object_or_404(Slot, id=slot_id, field=field)
+        form = SlotForm(request.POST, instance=editing_slot)
+        if form.is_valid():
+            start_datetime = form.cleaned_data["start_datetime"]
+            end_datetime = form.cleaned_data["end_datetime"]
+            exclude_slot_id = editing_slot.id if editing_slot else None
+
+            try:
+                validate_time_range(start_datetime, end_datetime)
+            except ValidationError as error:
+                message = error.messages[0]
+                form.add_error(None, message)
+                messages.error(request, message)
+            else:
+                if slot_overlaps_existing_slots(
+                    field,
+                    start_datetime,
+                    end_datetime,
+                    exclude_slot_id=exclude_slot_id,
+                ):
+                    message = "This slot overlaps an existing slot for this field."
+                    form.add_error(None, message)
+                    messages.error(request, message)
+                elif slot_conflicts_with_confirmed_bookings(
+                    field,
+                    start_datetime,
+                    end_datetime,
+                    exclude_slot_id=exclude_slot_id,
+                ):
+                    message = "This slot conflicts with a confirmed booking."
+                    form.add_error(None, message)
+                    messages.error(request, message)
+                else:
+                    slot = form.save(commit=False)
+                    slot.field = field
+                    slot.save()
+                    messages.success(request, "Slot saved successfully.")
+                    return redirect("facilities:manage_field_slots", field_id=field.id)
+    else:
+        form = SlotForm(instance=editing_slot)
+
+    slots = field.slots.order_by("start_datetime")
+    return render(
+        request,
+        "facilities/manage_slots.html",
+        {
+            "field": field,
+            "slots": slots,
+            "form": form,
+            "editing_slot": editing_slot,
+        },
+    )
 
 
 @facility_manager_required
-def manage_unavailability(request, field_id):
-    return HttpResponse(f"UC-13 Declare Temporary Field Unavailability for field {field_id}")
+def declare_unavailability_view(request, field_id):
+    field = get_object_or_404(
+        Field.objects.select_related("facility"),
+        id=field_id,
+        facility__manager=request.user,
+    )
+
+    if request.method == "POST":
+        form = TemporaryUnavailabilityForm(request.POST)
+        if form.is_valid():
+            start_datetime = form.cleaned_data["start_datetime"]
+            end_datetime = form.cleaned_data["end_datetime"]
+
+            try:
+                validate_time_range(start_datetime, end_datetime)
+            except ValidationError as error:
+                message = error.messages[0]
+                form.add_error(None, message)
+                messages.error(request, message)
+            else:
+                if duplicate_temporary_unavailability(
+                    field,
+                    start_datetime,
+                    end_datetime,
+                ):
+                    message = "This temporary unavailability period already exists."
+                    form.add_error(None, message)
+                    messages.error(request, message)
+                elif unavailability_conflicts_with_confirmed_bookings(
+                    field,
+                    start_datetime,
+                    end_datetime,
+                ):
+                    message = (
+                        "This temporary unavailability conflicts with a confirmed booking."
+                    )
+                    form.add_error(None, message)
+                    messages.error(request, message)
+                else:
+                    unavailability = form.save(commit=False)
+                    unavailability.field = field
+                    unavailability.save()
+                    messages.success(
+                        request,
+                        "Temporary unavailability saved successfully.",
+                    )
+                    return redirect("facilities:manage_unavailability", field_id=field.id)
+    else:
+        form = TemporaryUnavailabilityForm()
+
+    unavailabilities = field.temporary_unavailabilities.order_by("start_datetime")
+    return render(
+        request,
+        "facilities/declare_unavailability.html",
+        {
+            "field": field,
+            "unavailabilities": unavailabilities,
+            "form": form,
+        },
+    )
 
 
 @system_admin_required
@@ -169,4 +310,6 @@ manager_new = submit_facility_view
 manage_rules = manage_booking_rules_view
 manage_cancellation_policy = manage_cancellation_policy_view
 manage_fields = manage_fields_view
+manage_field_slots = manage_slots_view
+manage_unavailability = declare_unavailability_view
 admin_pending = pending_facilities_view

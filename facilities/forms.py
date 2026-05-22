@@ -1,6 +1,23 @@
 from django import forms
 
-from .models import BookingRules, CancellationPolicy, Facility, Field
+from .models import (
+    BookingRules,
+    CancellationPolicy,
+    Facility,
+    Field,
+    Slot,
+    TemporaryUnavailability,
+)
+
+
+EUROPEAN_DATETIME_FORMAT = "%d/%m/%Y %H:%M"
+DATETIME_INPUT_FORMATS = [EUROPEAN_DATETIME_FORMAT]
+DATETIME_WIDGET_ATTRS = {
+    "placeholder": "dd/mm/yyyy HH:MM",
+}
+DATETIME_ERROR_MESSAGES = {
+    "invalid": "Use European format: dd/mm/yyyy HH:MM.",
+}
 
 
 class FacilityForm(forms.ModelForm):
@@ -40,3 +57,56 @@ class FieldForm(forms.ModelForm):
     class Meta:
         model = Field
         fields = ("name", "sport_type", "surface_type")
+
+
+class SlotForm(forms.ModelForm):
+    start_datetime = forms.DateTimeField(
+        label="Start datetime (dd/mm/yyyy HH:MM)",
+        input_formats=DATETIME_INPUT_FORMATS,
+        error_messages=DATETIME_ERROR_MESSAGES,
+        widget=forms.DateTimeInput(
+            attrs=DATETIME_WIDGET_ATTRS,
+            format=EUROPEAN_DATETIME_FORMAT,
+        ),
+    )
+    end_datetime = forms.DateTimeField(
+        label="End datetime (dd/mm/yyyy HH:MM)",
+        input_formats=DATETIME_INPUT_FORMATS,
+        error_messages=DATETIME_ERROR_MESSAGES,
+        widget=forms.DateTimeInput(
+            attrs=DATETIME_WIDGET_ATTRS,
+            format=EUROPEAN_DATETIME_FORMAT,
+        ),
+    )
+
+    class Meta:
+        model = Slot
+        fields = ("start_datetime", "end_datetime")
+
+
+class TemporaryUnavailabilityForm(forms.ModelForm):
+    start_datetime = forms.DateTimeField(
+        label="Start datetime (dd/mm/yyyy HH:MM)",
+        input_formats=DATETIME_INPUT_FORMATS,
+        error_messages=DATETIME_ERROR_MESSAGES,
+        widget=forms.DateTimeInput(
+            attrs=DATETIME_WIDGET_ATTRS,
+            format=EUROPEAN_DATETIME_FORMAT,
+        ),
+    )
+    end_datetime = forms.DateTimeField(
+        label="End datetime (dd/mm/yyyy HH:MM)",
+        input_formats=DATETIME_INPUT_FORMATS,
+        error_messages=DATETIME_ERROR_MESSAGES,
+        widget=forms.DateTimeInput(
+            attrs=DATETIME_WIDGET_ATTRS,
+            format=EUROPEAN_DATETIME_FORMAT,
+        ),
+    )
+
+    class Meta:
+        model = TemporaryUnavailability
+        fields = ("start_datetime", "end_datetime", "reason")
+        widgets = {
+            "reason": forms.Textarea(attrs={"rows": 3}),
+        }
