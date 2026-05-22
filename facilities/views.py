@@ -69,7 +69,10 @@ def manage_booking_rules_view(request, facility_id):
     if request.method == "POST":
         form = BookingRulesForm(request.POST, instance=rules)
         if form.is_valid():
-            form.save()
+            booking_rules = form.save(commit=False)
+            booking_rules.facility = facility
+            booking_rules.day_type = "ALL"
+            booking_rules.save()
             return redirect("facilities:manager_dashboard")
     else:
         form = BookingRulesForm(instance=rules)

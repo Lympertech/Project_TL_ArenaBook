@@ -35,14 +35,6 @@ class BookingRulesForm(forms.ModelForm):
         decimal_places=2,
         widget=forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
     )
-    day_type = forms.ChoiceField(
-        label="Day type",
-        choices=(
-            ("ALL", "All days"),
-            ("WEEKDAYS", "Weekdays"),
-            ("WEEKENDS", "Weekends"),
-        ),
-    )
     start_time = forms.TimeField(label="Start time")
     end_time = forms.TimeField(label="End time")
     min_notice_hours = forms.IntegerField(label="Minimum notice before booking (hours)")
@@ -53,7 +45,6 @@ class BookingRulesForm(forms.ModelForm):
         model = BookingRules
         fields = (
             "price_amount",
-            "day_type",
             "start_time",
             "end_time",
             "min_notice_hours",
