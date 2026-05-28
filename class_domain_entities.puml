@@ -1,0 +1,162 @@
+@startuml class_domain_entities
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 55
+skinparam dpi 150
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam classBorderColor #555555
+skinparam shadowing false
+top to bottom direction
+title ArenaBook Domain Entities
+
+package "Domain Entities" {
+    together {
+        class User {
+            -id: int
+            -username: string
+            -email: string
+            -role: USER / FACILITY_MANAGER / SYSTEM_ADMIN
+            -account_status: string
+            +isFacilityManager(): bool
+            +isSystemAdmin(): bool
+        }
+
+        class Team {
+            -id: int
+            -name: string
+            -representative: User
+        }
+
+        class Facility {
+            -id: int
+            -manager: User
+            -name: string
+            -location: string
+            -description: string
+            -status: PENDING / ACTIVE / REJECTED
+            +markAsPending(): void
+            +approve(): void
+            +reject(): void
+        }
+    }
+
+    together {
+        class Field {
+            -id: int
+            -facility: Facility
+            -name: string
+            -sport_type: string
+            -surface_type: string
+            +getDetails(): Field
+            +update(data: dict): void
+        }
+
+        class Slot {
+            -id: int
+            -field: Field
+            -start_datetime: datetime
+            -end_datetime: datetime
+            +getStatus(): string
+            +findAvailable(fieldId: int, date: date): list
+            +findOverlapping(fieldId: int, slotDetails: dict): list
+        }
+
+        class TemporaryUnavailability {
+            -id: int
+            -field: Field
+            -start_datetime: datetime
+            -end_datetime: datetime
+            -reason: string
+            +create(fieldId: int, period: dict): TemporaryUnavailability
+            +findByField(fieldId: int): list
+        }
+    }
+
+    together {
+        class Booking {
+            -id: int
+            -user: User
+            -field: Field
+            -slot: Slot
+            -status: PENDING / CONFIRMED / CANCELLED
+            -created_at: datetime
+            -total_cost: decimal
+            +getDetails(): Booking
+            +markAsPending(): void
+            +markAsConfirmed(): void
+            +markAsCancelled(): void
+            +changeSlot(newSlotId: int): void
+            +findOverlapping(fieldId: int, period: dict): list
+        }
+
+        class Payment {
+            -id: int
+            -booking: Booking
+            -amount: decimal
+            -status: PENDING / SUCCESSFUL / FAILED / REFUND_PENDING / REFUNDED
+            -payment_date: datetime
+            -payment_type: INITIAL / ADDITIONAL / REFUND
+            +recordPayment(): void
+            +markAsSuccessful(): void
+            +markAsFailed(): void
+            +markAsRefunded(): void
+        }
+    }
+
+    together {
+        class BookingRules {
+            -id: int
+            -facility: Facility
+            -price_amount: decimal
+            -day_type: string
+            -start_time: time
+            -end_time: time
+            -min_notice_hours: int
+            -max_duration_minutes: int
+            -modification_limit: int
+            +getRulesForSlot(slotId: int): BookingRules
+            +update(data: dict): void
+        }
+
+        class CancellationPolicy {
+            -id: int
+            -facility: Facility
+            -cancellation_deadline_hours: int
+            -refund_percentage: int
+            +findByFacility(facilityId: int): CancellationPolicy
+        }
+    }
+}
+
+User "1" -- "0..*" Team : represents
+User "1" -- "0..*" Facility : manages
+Facility "1" -- "1..*" Field : contains
+Facility "1" -- "1" BookingRules : has
+Facility "1" -- "1" CancellationPolicy : has
+Field "1" -- "0..*" Slot : provides
+Field "1" -- "0..*" TemporaryUnavailability : blocks
+User "1" -- "0..*" Booking : creates
+Booking "1" -- "1" Field : reserves
+Booking "1" -- "1" Slot : uses
+Booking "1" -- "0..*" Payment : records
+
+User -[hidden]right- Team
+Team -[hidden]right- Facility
+Facility -[hidden]down- Field
+Field -[hidden]right- Slot
+Slot -[hidden]right- TemporaryUnavailability
+Booking -[hidden]right- Payment
+BookingRules -[hidden]right- CancellationPolicy
+Field -[hidden]down- Booking
+Booking -[hidden]down- BookingRules
+
+note right of User
+FacilityManager and SystemAdmin are roles of User,
+not separate domain classes.
+end note
+
+@enduml

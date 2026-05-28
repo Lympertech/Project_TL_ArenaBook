@@ -1,0 +1,32 @@
+@startuml uc_s_10
+skinparam style strictuml
+title Sequence-10 Submit Facility
+
+actor FacilityManager
+boundary FacilityManagementView
+control FacilityService
+entity Facility
+
+FacilityManager -> FacilityManagementView: submitFacilityDetails(details)
+activate FacilityManagementView
+FacilityManagementView -> FacilityService: submitFacility(managerId, details)
+activate FacilityService
+
+FacilityService -> Facility: find(details)
+activate Facility
+Facility --> FacilityService: existingFacilityCheck
+deactivate Facility
+
+alt Facility Exists
+    FacilityService --> FacilityManagementView: errorExists()
+    FacilityManagementView --> FacilityManager: displayError("Facility already exists")
+else New Facility
+    create Facility
+    FacilityService -> Facility: create(details)
+    FacilityService -> Facility: markAsPending()
+    FacilityService --> FacilityManagementView: success()
+    FacilityManagementView --> FacilityManager: displaySuccess("Submitted for approval")
+end
+deactivate FacilityService
+deactivate FacilityManagementView
+@enduml

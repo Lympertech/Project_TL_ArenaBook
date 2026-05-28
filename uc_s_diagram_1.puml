@@ -1,0 +1,30 @@
+@startuml uc_s_1
+skinparam style strictuml
+title Sequence-01 Register User
+
+actor User as UserActor
+boundary RegisterView
+control AuthService
+entity User as UserModel
+
+UserActor -> RegisterView: submitRegistrationForm(details, role)
+activate RegisterView
+RegisterView -> AuthService: registerUser(details, role)
+activate AuthService
+
+AuthService -> AuthService: validateDetails(details, role)
+
+alt Invalid details or account already exists
+    AuthService --> RegisterView: validationError()
+    RegisterView --> UserActor: displayError("Registration could not be completed")
+else Valid USER or FACILITY_MANAGER role
+    create UserModel
+    AuthService -> UserModel: createUser(details, role)
+    AuthService -> AuthService: loginUser(user)
+    AuthService --> RegisterView: redirectToDashboard(role)
+    RegisterView --> UserActor: redirectToDashboard(role)
+end
+
+deactivate AuthService
+deactivate RegisterView
+@enduml

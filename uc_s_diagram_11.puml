@@ -1,0 +1,36 @@
+@startuml uc_s_11
+skinparam style strictuml
+title Sequence-11 Create or Update Field
+
+actor FacilityManager
+boundary FieldManagementView
+control FieldService
+entity Field
+
+FacilityManager -> FieldManagementView: saveFieldDetails(facilityId, fieldId?, fieldDetails)
+activate FieldManagementView
+
+alt Create New Field
+    FieldManagementView -> FieldService: createField(facilityId, fieldDetails)
+    activate FieldService
+    create Field
+    FieldService -> Field: create()
+    FieldService --> FieldManagementView: success()
+    deactivate FieldService
+else Update Existing Field
+    FieldManagementView -> FieldService: updateField(fieldId, fieldDetails)
+    activate FieldService
+    
+    FieldService -> Field: getDetails(fieldId)
+    activate Field
+    Field --> FieldService: currentDetails
+    deactivate Field
+    
+    FieldService -> Field: update(fieldDetails)
+    FieldService --> FieldManagementView: success()
+    deactivate FieldService
+end
+
+FieldManagementView --> FacilityManager: displaySuccess("Field saved")
+deactivate FieldManagementView
+@enduml

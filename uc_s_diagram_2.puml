@@ -1,0 +1,30 @@
+@startuml uc_s_2
+skinparam style strictuml
+title Sequence-02 Search Facility
+
+actor User
+boundary FacilitySearchView
+control FacilityService
+entity Facility
+
+User -> FacilitySearchView: searchFacilities(criteria)
+activate FacilitySearchView
+FacilitySearchView -> FacilityService: searchActiveFacilities(criteria)
+activate FacilityService
+
+FacilityService -> Facility: find(status="ACTIVE", criteria)
+activate Facility
+Facility --> FacilityService: activeFacilitiesList
+deactivate Facility
+
+alt No matching facilities
+    FacilityService --> FacilitySearchView: emptyList
+    FacilitySearchView --> User: displayMessage("No facilities found")
+else Facilities found
+    FacilityService --> FacilitySearchView: activeFacilitiesList
+    FacilitySearchView --> User: displayFacilities(activeFacilitiesList)
+end
+
+deactivate FacilityService
+deactivate FacilitySearchView
+@enduml

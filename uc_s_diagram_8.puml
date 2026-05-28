@@ -1,0 +1,32 @@
+@startuml uc_s_8
+skinparam style strictuml
+title Sequence-08 Manage Booking Rules
+
+actor FacilityManager
+boundary FacilityManagementView
+control BookingRulesService
+entity BookingRules
+
+FacilityManager -> FacilityManagementView: defineBookingRules(facilityId, rulesData)
+activate FacilityManagementView
+
+FacilityManagementView -> BookingRulesService: setBookingRules(facilityId, rulesData)
+activate BookingRulesService
+
+BookingRulesService -> BookingRules: findByFacility(facilityId)
+activate BookingRules
+BookingRules --> BookingRulesService: existingRules
+deactivate BookingRules
+
+alt Rules exist
+    BookingRulesService -> BookingRules: update(rulesData)
+else New rules
+    create BookingRules
+    BookingRulesService -> BookingRules: create(facilityId, rulesData)
+end
+
+BookingRulesService --> FacilityManagementView: rulesSaved()
+deactivate BookingRulesService
+FacilityManagementView --> FacilityManager: displaySuccess("Booking rules updated")
+deactivate FacilityManagementView
+@enduml

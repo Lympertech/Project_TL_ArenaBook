@@ -1,0 +1,42 @@
+@startuml uc_s_3
+skinparam style strictuml
+title Sequence-03 View Field Availability
+
+actor User
+boundary AvailabilityView
+control AvailabilityService
+entity Slot
+entity Booking
+entity TemporaryUnavailability
+
+User -> AvailabilityView: requestFieldAvailability(fieldId, date)
+activate AvailabilityView
+AvailabilityView -> AvailabilityService: getAvailableSlots(fieldId, date)
+activate AvailabilityService
+
+AvailabilityService -> Slot: findSlots(fieldId, date)
+activate Slot
+Slot --> AvailabilityService: slotsList
+deactivate Slot
+
+AvailabilityService -> Booking: findBookings(fieldId, date)
+activate Booking
+Booking --> AvailabilityService: bookingsList
+deactivate Booking
+
+AvailabilityService -> TemporaryUnavailability: findUnavailability(fieldId, date)
+activate TemporaryUnavailability
+TemporaryUnavailability --> AvailabilityService: unavailabilityList
+deactivate TemporaryUnavailability
+
+AvailabilityService --> AvailabilityView: availableSlotsList
+deactivate AvailabilityService
+
+alt No available slots
+    AvailabilityView --> User: displayMessage("No available slots")
+else Available slots found
+    AvailabilityView --> User: displaySlots(availableSlotsList)
+end
+
+deactivate AvailabilityView
+@enduml

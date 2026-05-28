@@ -1,0 +1,50 @@
+@startuml uc_s_14
+skinparam style strictuml
+title Sequence-14 Approve Facility Submission
+
+actor SystemAdmin
+boundary FacilityApprovalView
+control FacilityService
+entity Facility
+
+SystemAdmin -> FacilityApprovalView: viewPendingFacilities()
+activate FacilityApprovalView
+FacilityApprovalView -> FacilityService: getPendingFacilities()
+activate FacilityService
+FacilityService -> Facility: find(status="PENDING")
+activate Facility
+Facility --> FacilityService: pendingList
+deactivate Facility
+FacilityService --> FacilityApprovalView: pendingList
+deactivate FacilityService
+FacilityApprovalView --> SystemAdmin: display(pendingList)
+
+alt Approve Facility
+    SystemAdmin -> FacilityApprovalView: approveFacility(facilityId)
+    FacilityApprovalView -> FacilityService: approveFacility(facilityId)
+    activate FacilityService
+    
+    FacilityService -> Facility: getDetails(facilityId)
+    activate Facility
+    Facility --> FacilityService: facilityDetails
+    deactivate Facility
+    
+    FacilityService -> Facility: approve()
+    FacilityService --> FacilityApprovalView: approved()
+    deactivate FacilityService
+    FacilityApprovalView --> SystemAdmin: displaySuccess("Approved")
+else Reject Facility
+    SystemAdmin -> FacilityApprovalView: rejectFacility(facilityId)
+    FacilityApprovalView -> FacilityService: rejectFacility(facilityId)
+    activate FacilityService
+    FacilityService -> Facility: getDetails(facilityId)
+    activate Facility
+    Facility --> FacilityService: facilityDetails
+    deactivate Facility
+    FacilityService -> Facility: reject()
+    FacilityService --> FacilityApprovalView: rejected()
+    deactivate FacilityService
+    FacilityApprovalView --> SystemAdmin: displaySuccess("Rejected")
+end
+deactivate FacilityApprovalView
+@enduml

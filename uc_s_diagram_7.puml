@@ -1,0 +1,55 @@
+@startuml uc_s_7
+skinparam style strictuml
+title Sequence-07 Cancel Confirmed Booking
+
+actor User
+boundary BookingView
+control CancellationPolicyService
+control PaymentService
+control BookingService
+entity Booking
+entity CancellationPolicy
+entity Payment
+
+User -> BookingView: requestCancellation(bookingId)
+activate BookingView
+
+BookingView -> CancellationPolicyService: canCancel(bookingId)
+activate CancellationPolicyService
+
+CancellationPolicyService -> Booking: getDetails(bookingId)
+activate Booking
+Booking --> CancellationPolicyService: bookingDetails
+deactivate Booking
+
+CancellationPolicyService -> CancellationPolicy: findByFacility(facilityId)
+activate CancellationPolicy
+CancellationPolicy --> CancellationPolicyService: policyDetails
+deactivate CancellationPolicy
+
+CancellationPolicyService --> BookingView: policyResult (isAllowed, refundAmount)
+deactivate CancellationPolicyService
+
+alt Cancellation Not Allowed
+    BookingView --> User: displayError("Cancellation not permitted by policy")
+else Cancellation Allowed
+    BookingView -> PaymentService: processMockRefund(bookingId, refundAmount)
+    activate PaymentService
+    create Payment
+    PaymentService -> Payment: createRefund(bookingId, refundAmount)
+    activate Payment
+    PaymentService -> Payment: markAsRefunded()
+    deactivate Payment
+    PaymentService --> BookingView: refundProcessed()
+    deactivate PaymentService
+    
+    BookingView -> BookingService: cancelBooking(bookingId)
+    activate BookingService
+    BookingService -> Booking: markAsCancelled()
+    BookingService --> BookingView: cancellationSuccess()
+    deactivate BookingService
+    
+    BookingView --> User: displaySuccess("Booking cancelled and refund processed")
+end
+deactivate BookingView
+@enduml

@@ -1,0 +1,53 @@
+@startuml uc_s_6
+skinparam style strictuml
+title Sequence-06 Modify Confirmed Booking
+
+actor User
+boundary BookingView
+control BookingRulesService
+control SlotService
+control BookingService
+entity Booking
+entity Slot
+
+User -> BookingView: requestModification(bookingId, newSlotId)
+activate BookingView
+
+BookingView -> BookingRulesService: validateModification(bookingId, newSlotId)
+activate BookingRulesService
+BookingRulesService -> Booking: getDetails(bookingId)
+activate Booking
+Booking --> BookingRulesService: bookingDetails
+deactivate Booking
+BookingRulesService --> BookingView: isValid
+deactivate BookingRulesService
+
+alt Rules Violated
+    BookingView --> User: displayError("Modification not allowed by rules")
+else Rules Valid
+    BookingView -> SlotService: checkSlotAvailability(newSlotId)
+    activate SlotService
+    SlotService -> Slot: getStatus(newSlotId)
+    activate Slot
+    Slot --> SlotService: slotStatus
+    deactivate Slot
+    SlotService --> BookingView: isAvailable
+    deactivate SlotService
+    
+    alt New Slot Unavailable
+        BookingView --> User: displayError("New slot unavailable")
+    else Slot Available
+        BookingView -> BookingService: modifyBooking(bookingId, newSlotId)
+        activate BookingService
+        BookingService -> Booking: getDetails(bookingId)
+        activate Booking
+        Booking --> BookingService: confirmedBooking
+        deactivate Booking
+        BookingService -> Booking: changeSlot(newSlotId)
+        BookingService --> BookingView: modificationSuccess()
+        deactivate BookingService
+        BookingView --> User: displaySuccess("Booking modified")
+    end
+end
+deactivate BookingView
+@enduml

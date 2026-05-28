@@ -1,0 +1,52 @@
+@startuml uc_s_4
+skinparam style strictuml
+title Sequence-04 Create Pending Booking
+
+actor User
+boundary BookingView
+control SlotService
+control BookingRulesService
+control BookingService
+entity Slot
+entity BookingRules
+entity Booking
+
+User -> BookingView: createBooking(userId, slotId)
+activate BookingView
+
+BookingView -> SlotService: checkSlotAvailability(slotId)
+activate SlotService
+SlotService -> Slot: getStatus(slotId)
+activate Slot
+Slot --> SlotService: slotStatus
+deactivate Slot
+SlotService --> BookingView: isAvailable
+deactivate SlotService
+
+alt Slot Not Available
+    BookingView --> User: displayError("Slot is no longer available")
+else Slot Available
+    BookingView -> BookingRulesService: validateBooking(userId, slotId)
+    activate BookingRulesService
+    BookingRulesService -> BookingRules: getRulesForSlot(slotId)
+    activate BookingRules
+    BookingRules --> BookingRulesService: rulesDetails
+    deactivate BookingRules
+    BookingRulesService --> BookingView: isValid
+    deactivate BookingRulesService
+    
+    alt Booking Rules Violated
+        BookingView --> User: displayError("Booking rules not met")
+    else Rules Valid
+        BookingView -> BookingService: createPendingBooking(userId, slotId)
+        activate BookingService
+        create Booking
+        BookingService -> Booking: createPendingBooking(userId, slotId)
+        BookingService -> Booking: markAsPending()
+        BookingService --> BookingView: pendingBookingCreated()
+        deactivate BookingService
+        BookingView --> User: displaySuccess("Pending booking created. Proceed to payment.")
+    end
+end
+deactivate BookingView
+@enduml

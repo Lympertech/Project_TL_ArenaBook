@@ -1,0 +1,105 @@
+@startuml class_services_controls
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 55
+skinparam dpi 150
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam classBorderColor #555555
+skinparam shadowing false
+top to bottom direction
+title ArenaBook Service / Control Classes
+
+package "Service / Control Classes" {
+    together {
+        class AuthService {
+            +registerUser(details: dict, role: string): User
+            +validateDetails(details: dict): bool
+            +loginUser(user: User): void
+            +redirectToDashboard(role: string): void
+        }
+
+        class FacilityService {
+            +searchActiveFacilities(criteria: dict): list
+            +submitFacility(managerId: int, details: dict): Facility
+            +getPendingFacilities(): list
+            +approveFacility(facilityId: int): void
+            +rejectFacility(facilityId: int): void
+            +getManagerFacilities(managerId: int): list
+        }
+
+        class FieldService {
+            +createField(facilityId: int, fieldDetails: dict): Field
+            +updateField(fieldId: int, fieldDetails: dict): Field
+            +getDetails(fieldId: int): Field
+        }
+
+        class SlotService {
+            +checkSlotAvailability(slotId: int): bool
+            +checkSlotConflict(fieldId: int, slotDetails: dict): bool
+            +createSlot(fieldId: int, slotDetails: dict): Slot
+            +updateSlot(slotId: int, slotDetails: dict): Slot
+        }
+
+        class AvailabilityService {
+            +getAvailableSlots(fieldId: int, date: date): list
+        }
+    }
+
+    together {
+        class BookingRulesService {
+            +getRulesForSlot(slotId: int): BookingRules
+            +setBookingRules(facilityId: int, rulesData: dict): BookingRules
+            +validateBooking(userId: int, slotId: int): bool
+            +validateModification(bookingId: int, newSlotId: int): bool
+        }
+
+        class CancellationPolicyService {
+            +setCancellationPolicy(facilityId: int, policyData: dict): CancellationPolicy
+            +canCancel(bookingId: int): bool
+        }
+
+        class TemporaryUnavailabilityService {
+            +declareUnavailability(fieldId: int, period: dict): TemporaryUnavailability
+            +checkDuplicate(fieldId: int, period: dict): bool
+        }
+
+        class BookingService {
+            +createPendingBooking(userId: int, slotId: int): Booking
+            +validatePendingBooking(bookingId: int): bool
+            +confirmBooking(bookingId: int): void
+            +modifyBooking(bookingId: int, newSlotId: int): void
+            +cancelBooking(bookingId: int): void
+            +checkBookingConflict(fieldId: int, period: dict): bool
+        }
+
+        class PaymentService {
+            +payPendingBooking(bookingId: int, paymentDetails: dict): Payment
+            +processMockPayment(bookingId: int, paymentDetails: dict): Payment
+            +recordPayment(bookingId: int, amount: decimal): Payment
+            +processMockRefund(bookingId: int, refundAmount: decimal): Payment
+            +createRefund(bookingId: int, refundAmount: decimal): Payment
+        }
+    }
+}
+
+AuthService -[hidden]right- FacilityService
+FacilityService -[hidden]right- FieldService
+FieldService -[hidden]right- SlotService
+SlotService -[hidden]right- AvailabilityService
+AvailabilityService -[hidden]down- BookingRulesService
+
+BookingRulesService -[hidden]right- CancellationPolicyService
+CancellationPolicyService -[hidden]right- TemporaryUnavailabilityService
+TemporaryUnavailabilityService -[hidden]right- BookingService
+BookingService -[hidden]right- PaymentService
+
+note bottom
+Return types reference the domain entity diagram.
+Service methods are derived from the sequence diagrams.
+end note
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml uc_s_9
+skinparam style strictuml
+title Sequence-09 Manage Cancellation Policy
+
+actor FacilityManager
+boundary FacilityManagementView
+control CancellationPolicyService
+entity CancellationPolicy
+
+FacilityManager -> FacilityManagementView: defineCancellationPolicy(facilityId, policyData)
+activate FacilityManagementView
+
+FacilityManagementView -> CancellationPolicyService: setCancellationPolicy(facilityId, policyData)
+activate CancellationPolicyService
+
+CancellationPolicyService -> CancellationPolicy: findByFacility(facilityId)
+activate CancellationPolicy
+CancellationPolicy --> CancellationPolicyService: existingPolicy
+deactivate CancellationPolicy
+
+alt Policy exists
+    CancellationPolicyService -> CancellationPolicy: update(policyData)
+else New policy
+    create CancellationPolicy
+    CancellationPolicyService -> CancellationPolicy: create(facilityId, policyData)
+end
+
+CancellationPolicyService --> FacilityManagementView: policySaved()
+deactivate CancellationPolicyService
+FacilityManagementView --> FacilityManager: displaySuccess("Cancellation policy updated")
+deactivate FacilityManagementView
+@enduml

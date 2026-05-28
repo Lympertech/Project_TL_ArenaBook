@@ -1,0 +1,38 @@
+@startuml uc_s_13
+skinparam style strictuml
+title Sequence-13 Declare Temporary Field Unavailability
+
+actor FacilityManager
+boundary TemporaryUnavailabilityView
+control TemporaryUnavailabilityService
+control BookingService
+entity Booking
+entity TemporaryUnavailability
+
+FacilityManager -> TemporaryUnavailabilityView: declareUnavailability(fieldId, period)
+activate TemporaryUnavailabilityView
+
+TemporaryUnavailabilityView -> TemporaryUnavailabilityService: declareUnavailability(fieldId, period)
+activate TemporaryUnavailabilityService
+
+TemporaryUnavailabilityService -> BookingService: checkBookingConflict(fieldId, period)
+activate BookingService
+BookingService -> Booking: findOverlapping(fieldId, period)
+activate Booking
+Booking --> BookingService: overlappingBookings
+deactivate Booking
+BookingService --> TemporaryUnavailabilityService: hasConflict
+deactivate BookingService
+
+alt Booking Conflict
+    TemporaryUnavailabilityService --> TemporaryUnavailabilityView: conflictError()
+    TemporaryUnavailabilityView --> FacilityManager: displayError("Halted: Conflicts with bookings")
+else No Conflict
+    create TemporaryUnavailability
+    TemporaryUnavailabilityService -> TemporaryUnavailability: create(fieldId, period)
+    TemporaryUnavailabilityService --> TemporaryUnavailabilityView: success()
+    TemporaryUnavailabilityView --> FacilityManager: displaySuccess("Marked unavailable")
+end
+deactivate TemporaryUnavailabilityService
+deactivate TemporaryUnavailabilityView
+@enduml

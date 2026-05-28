@@ -1,0 +1,49 @@
+@startuml uc_s_12
+skinparam style strictuml
+title Sequence-12 Create or Update Field Slots
+
+actor FacilityManager
+boundary SlotManagementView
+control SlotService
+control BookingService
+entity Slot
+entity Booking
+
+FacilityManager -> SlotManagementView: saveSlotDetails(fieldId, slotId?, slotDetails)
+activate SlotManagementView
+
+SlotManagementView -> SlotService: checkSlotConflict(fieldId, slotDetails)
+activate SlotService
+
+SlotService -> Slot: findOverlapping(fieldId, slotDetails)
+activate Slot
+Slot --> SlotService: overlappingSlots
+deactivate Slot
+
+SlotService -> BookingService: checkBookingConflict(fieldId, slotDetails)
+activate BookingService
+BookingService -> Booking: findOverlapping(fieldId, slotDetails)
+activate Booking
+Booking --> BookingService: overlappingBookings
+deactivate Booking
+BookingService --> SlotService: bookingConflictResult
+deactivate BookingService
+
+alt Slot Conflict
+    SlotService --> SlotManagementView: conflictError()
+    SlotManagementView --> FacilityManager: displayError("Slot overlaps existing availability or confirmed booking")
+else No Conflict
+    alt Create New Slot
+        SlotManagementView -> SlotService: createSlot(fieldId, slotDetails)
+        create Slot
+        SlotService -> Slot: create(fieldId, slotDetails)
+    else Update Existing Slot
+        SlotManagementView -> SlotService: updateSlot(slotId, slotDetails)
+        SlotService -> Slot: update(slotDetails)
+    end
+    SlotService --> SlotManagementView: slotSaved()
+    SlotManagementView --> FacilityManager: displaySuccess("Slots saved")
+end
+deactivate SlotService
+deactivate SlotManagementView
+@enduml

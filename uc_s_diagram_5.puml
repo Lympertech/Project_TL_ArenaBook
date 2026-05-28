@@ -1,0 +1,62 @@
+@startuml uc_s_5
+skinparam style strictuml
+title Sequence-05 Pay Pending Booking
+
+actor User
+boundary PaymentView
+control PaymentService
+control BookingService
+entity Payment
+entity Booking
+
+User -> PaymentView: payBooking(bookingId, paymentDetails)
+activate PaymentView
+
+PaymentView -> PaymentService: payPendingBooking(bookingId, paymentDetails)
+activate PaymentService
+PaymentService -> BookingService: validatePendingBooking(bookingId)
+activate BookingService
+BookingService -> Booking: getDetails(bookingId)
+activate Booking
+Booking --> BookingService: bookingDetails
+deactivate Booking
+BookingService --> PaymentService: isPending
+deactivate BookingService
+
+alt Booking Not Pending
+    PaymentService --> PaymentView: validationError()
+    PaymentView --> User: displayError("Booking is not pending")
+else Booking Pending
+    PaymentService -> PaymentService: processMockPayment(bookingId, paymentDetails)
+
+    alt Payment Failed
+        create Payment
+        PaymentService -> Payment: recordPayment()
+        activate Payment
+        PaymentService -> Payment: markAsFailed()
+        deactivate Payment
+        PaymentService --> PaymentView: paymentFailure()
+        PaymentView --> User: displayError("Payment failed")
+    else Payment Successful
+        create Payment
+        PaymentService -> Payment: recordPayment()
+        activate Payment
+        PaymentService -> Payment: markAsSuccessful()
+        deactivate Payment
+
+        PaymentService -> BookingService: confirmBooking(bookingId)
+        activate BookingService
+        BookingService -> Booking: markAsConfirmed()
+        activate Booking
+        deactivate Booking
+        BookingService --> PaymentService: bookingConfirmed
+        deactivate BookingService
+
+        PaymentService --> PaymentView: paymentSuccess()
+        PaymentView --> User: displaySuccess("Booking confirmed successfully")
+    end
+end
+
+deactivate PaymentService
+deactivate PaymentView
+@enduml
