@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Search Facilities</h1>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label" for="location">Location</label>
+        <input class="form-control" id="location" name="location" value="{{ location }}">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label" for="sport_type">Sport type</label>
+        <input class="form-control" id="sport_type" name="sport_type" value="{{ sport_type }}">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label" for="date">Date</label>
+        <input class="form-control" id="date" name="date" type="date" value="{{ date_value }}">
+    </div>
+    <div class="col-md-3 d-flex align-items-end gap-2">
+        <button class="btn btn-primary" type="submit">Search</button>
+        <a class="btn btn-outline-secondary" href="{% url 'facilities:search' %}">Clear</a>
+    </div>
+</form>
+
+{% if invalid_date %}
+<div class="alert alert-danger" role="alert">Please use a valid date.</div>
+{% endif %}
+
+{% if facilities %}
+<div class="row g-3">
+    {% for facility in facilities %}
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h5">{{ facility.name }}</h2>
+                <p class="mb-1"><strong>Location:</strong> {{ facility.location }}</p>
+                <p>{{ facility.description }}</p>
+
+                <h3 class="h6">Fields</h3>
+                {% if facility.search_fields %}
+                <ul class="list-group list-group-flush mb-3">
+                    {% for field in facility.search_fields %}
+                    <li class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <span>{{ field.name }} - {{ field.sport_type }} - {{ field.surface_type }}</span>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'bookings:field_availability' field_id=field.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">
+                                Availability
+                            </a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No related fields found.</p>
+                {% endif %}
+
+                <a class="btn btn-outline-secondary" href="{% url 'facilities:detail' facility_id=facility.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">
+                    View Details
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No facilities found.</p>
+{% endif %}
+{% endblock %}

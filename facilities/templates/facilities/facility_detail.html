@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-2">{{ facility.name }}</h1>
+<p class="mb-1"><strong>Location:</strong> {{ facility.location }}</p>
+<p class="mb-4">{{ facility.description }}</p>
+
+<h2 class="h5">Fields</h2>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Sport</th>
+                <th>Surface</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for field in facility.fields.all %}
+            <tr>
+                <td>{{ field.name }}</td>
+                <td>{{ field.sport_type }}</td>
+                <td>{{ field.surface_type }}</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'bookings:field_availability' field_id=field.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">
+                        View Availability
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No fields available for this facility.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a class="btn btn-outline-secondary" href="{% url 'facilities:search' %}">Back to Search</a>
+{% endblock %}

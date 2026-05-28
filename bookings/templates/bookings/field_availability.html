@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-2">Field Availability</h1>
+<p class="mb-1">{{ field.facility.name }} - {{ field.name }}</p>
+<p class="mb-4">{{ field.sport_type }} - {{ field.surface_type }}</p>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label class="form-label" for="date">Date</label>
+        <input class="form-control" id="date" name="date" type="date" value="{{ date_value }}">
+    </div>
+    <div class="col-md-4 d-flex align-items-end gap-2">
+        <button class="btn btn-primary" type="submit">Filter</button>
+        <a class="btn btn-outline-secondary" href="{% url 'bookings:field_availability' field_id=field.id %}">Clear</a>
+    </div>
+</form>
+
+{% if invalid_date %}
+<div class="alert alert-danger" role="alert">Please use a valid date.</div>
+{% endif %}
+
+{% if available_slots %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in available_slots %}
+            <tr>
+                <td>{{ slot.start_datetime|date:"d/m/Y H:i" }}</td>
+                <td>{{ slot.end_datetime|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'bookings:create_booking' %}?slot_id={{ slot.id }}">
+                        Create Booking
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No available slots.</p>
+{% endif %}
+
+<a class="btn btn-outline-secondary" href="{% url 'facilities:detail' facility_id=field.facility.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">
+    Back to Facility
+</a>
+{% endblock %}

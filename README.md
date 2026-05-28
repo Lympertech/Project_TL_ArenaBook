@@ -142,4 +142,21 @@ The slot and temporary unavailability workflows include:
 - prevention of slot and unavailability conflicts with confirmed bookings
 - duplicate prevention for temporary unavailability periods
 
-Business logic for search, final availability calculation, booking creation, payment, booking modification, booking cancellation, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.
+## Search and Availability
+
+The project now includes:
+
+- UC-02 Search Facility
+- UC-03 View Field Availability
+
+Facility search returns only `ACTIVE` facilities. Users can filter by location, sport type, and optional date.
+
+Field availability is derived from:
+
+- `Slot`
+- `Booking`
+- `TemporaryUnavailability`
+
+Availability is not stored as a separate model. Confirmed bookings and temporary unavailability periods are excluded from available slots.
+
+Booking creation, payment, booking modification, booking cancellation, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.

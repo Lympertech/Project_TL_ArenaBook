@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.dateparse import parse_date
 
 from accounts.decorators import facility_manager_required, system_admin_required
 from .forms import (
@@ -29,12 +30,68 @@ from .services import (
 )
 
 
-def search(request):
-    return HttpResponse("UC-02 Search Facility")
+def search_facilities_view(request):
+    location = request.GET.get("location", "").strip()
+    sport_type = request.GET.get("sport_type", "").strip()
+    date_value = request.GET.get("date", "").strip()
+    selected_date = parse_date(date_value) if date_value else None
+    invalid_date = bool(date_value and selected_date is None)
+
+    facilities = Facility.objects.filter(status=Facility.Status.ACTIVE)
+    field_queryset = Field.objects.order_by("name")
+
+    if location:
+        facilities = facilities.filter(location__icontains=location)
+    if sport_type:
+        facilities = facilities.filter(fields__sport_type__icontains=sport_type)
+        field_queryset = field_queryset.filter(sport_type__icontains=sport_type)
+    if selected_date:
+        facilities = facilities.filter(fields__slots__start_datetime__date=selected_date)
+        field_queryset = field_queryset.filter(slots__start_datetime__date=selected_date)
+
+    facilities = (
+        facilities.distinct()
+        .prefetch_related(
+            Prefetch(
+                "fields",
+                queryset=field_queryset.distinct(),
+                to_attr="search_fields",
+            )
+        )
+        .order_by("name")
+    )
+
+    has_filters = bool(location or sport_type or date_value)
+    return render(
+        request,
+        "facilities/search_facilities.html",
+        {
+            "facilities": facilities,
+            "location": location,
+            "sport_type": sport_type,
+            "date_value": date_value,
+            "selected_date": selected_date,
+            "invalid_date": invalid_date,
+            "has_filters": has_filters,
+        },
+    )
 
 
-def detail(request, facility_id):
-    return HttpResponse(f"Facility detail placeholder for facility {facility_id}.")
+def facility_detail_view(request, facility_id):
+    facility = get_object_or_404(
+        Facility.objects.prefetch_related("fields"),
+        id=facility_id,
+        status=Facility.Status.ACTIVE,
+    )
+    date_value = request.GET.get("date", "").strip()
+    return render(
+        request,
+        "facilities/facility_detail.html",
+        {
+            "facility": facility,
+            "date_value": date_value,
+        },
+    )
 
 
 @facility_manager_required
@@ -309,6 +366,8 @@ def pending_facilities_view(request):
 
 
 manager_dashboard = manager_dashboard_view
+search = search_facilities_view
+detail = facility_detail_view
 manager_new = submit_facility_view
 manage_rules = manage_booking_rules_view
 manage_cancellation_policy = manage_cancellation_policy_view

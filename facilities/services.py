@@ -64,3 +64,32 @@ def unavailability_conflicts_with_confirmed_bookings(
         slot__start_datetime__lt=end_datetime,
         slot__end_datetime__gt=start_datetime,
     ).exists()
+
+
+def get_available_slots(field, date=None):
+    slots = Slot.objects.filter(field=field).order_by("start_datetime")
+    if date:
+        slots = slots.filter(start_datetime__date=date)
+
+    available_slots = []
+    for slot in slots:
+        has_confirmed_booking = Booking.objects.filter(
+            field=field,
+            status=Booking.Status.CONFIRMED,
+            slot__start_datetime__lt=slot.end_datetime,
+            slot__end_datetime__gt=slot.start_datetime,
+        ).exists()
+        if has_confirmed_booking:
+            continue
+
+        has_temporary_unavailability = TemporaryUnavailability.objects.filter(
+            field=field,
+            start_datetime__lt=slot.end_datetime,
+            end_datetime__gt=slot.start_datetime,
+        ).exists()
+        if has_temporary_unavailability:
+            continue
+
+        available_slots.append(slot)
+
+    return available_slots
