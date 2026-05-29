@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Create Pending Booking</h1>
+
+{% if error_message %}
+<div class="alert alert-danger" role="alert">{{ error_message }}</div>
+{% endif %}
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <h2 class="h5">{{ slot.field.facility.name }}</h2>
+        <p class="mb-1"><strong>Field:</strong> {{ slot.field.name }}</p>
+        <p class="mb-1"><strong>Sport:</strong> {{ slot.field.sport_type }}</p>
+        <p class="mb-1"><strong>Start:</strong> {{ slot.start_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>End:</strong> {{ slot.end_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-4"><strong>Price:</strong> {{ price }} €</p>
+
+        <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="slot_id" value="{{ slot.id }}">
+            <button class="btn btn-primary" type="submit">Create Pending Booking</button>
+        </form>
+        <a class="btn btn-outline-secondary" href="{% url 'bookings:field_availability' field_id=slot.field.id %}">
+            Back to Availability
+        </a>
+    </div>
+</div>
+{% endblock %}

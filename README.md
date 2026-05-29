@@ -159,4 +159,20 @@ Field availability is derived from:
 
 Availability is not stored as a separate model. Confirmed bookings and temporary unavailability periods are excluded from available slots.
 
-Booking creation, payment, booking modification, booking cancellation, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.
+## Booking and Mock Payment
+
+The project now includes:
+
+- UC-04 Create Pending Booking
+- UC-05 Pay Pending Booking
+
+Users can create a booking from an available slot. New bookings are created with status `PENDING`.
+
+Payment is implemented as a mock flow:
+
+- successful mock payment creates a `SUCCESSFUL` initial payment and changes the booking to `CONFIRMED`
+- failed mock payment creates a `FAILED` initial payment and keeps the booking `PENDING`
+
+There is no real external payment integration.
+
+Booking modification, booking cancellation/refund, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Pay Pending Booking</h1>
+
+{% if error_message %}
+<div class="alert alert-danger" role="alert">{{ error_message }}</div>
+{% endif %}
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <h2 class="h5">Booking #{{ booking.id }}</h2>
+        <p class="mb-1"><strong>Facility:</strong> {{ booking.field.facility.name }}</p>
+        <p class="mb-1"><strong>Field:</strong> {{ booking.field.name }}</p>
+        <p class="mb-1"><strong>Start:</strong> {{ booking.slot.start_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>End:</strong> {{ booking.slot.end_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>Status:</strong> {{ booking.get_status_display }}</p>
+        <p class="mb-4"><strong>Amount:</strong> {{ booking.total_cost }} €</p>
+
+        <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit" name="payment_result" value="success">
+                Pay Successfully
+            </button>
+        </form>
+        <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger" type="submit" name="payment_result" value="failed">
+                Simulate Failed Payment
+            </button>
+        </form>
+        <a class="btn btn-outline-secondary" href="{% url 'bookings:my_bookings' %}">
+            Back to My Bookings
+        </a>
+    </div>
+</div>
+{% endblock %}

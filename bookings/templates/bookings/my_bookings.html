@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">My Bookings</h1>
+
+{% if bookings %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Facility</th>
+                <th>Field</th>
+                <th>Slot</th>
+                <th>Status</th>
+                <th>Total Cost</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.field.facility.name }}</td>
+                <td>{{ booking.field.name }}</td>
+                <td>
+                    {{ booking.slot.start_datetime|date:"d/m/Y H:i" }}
+                    -
+                    {{ booking.slot.end_datetime|date:"d/m/Y H:i" }}
+                </td>
+                <td>{{ booking.get_status_display }}</td>
+                <td>{{ booking.total_cost }} €</td>
+                <td>
+                    {% if booking.status == "PENDING" %}
+                    <a class="btn btn-sm btn-primary" href="{% url 'payments:pay_booking' booking_id=booking.id %}">
+                        Pay
+                    </a>
+                    {% elif booking.status == "CONFIRMED" %}
+                    <span class="text-muted">Modify/cancel will be added later.</span>
+                    {% else %}
+                    <span class="text-muted">No action available.</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>You do not have any bookings yet.</p>
+{% endif %}
+{% endblock %}
