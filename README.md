@@ -12,7 +12,7 @@ ArenaBook is a Django web application for searching, booking and managing sports
 - GitHub
 - VS Code
 
-Payment handling will be implemented later as a mock flow, with no real external payment integration.
+Payment and refund handling are mock flows, with no real external payment integration.
 
 ## Setup
 
@@ -89,6 +89,68 @@ Demo users created by `seed_demo`:
 ```powershell
 python manage.py runserver
 ```
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Useful verification commands:
+
+```powershell
+python manage.py check
+python manage.py migrate
+python manage.py seed_demo
+python manage.py runserver
+```
+
+## Local Network Demo
+
+For a same Wi-Fi/LAN demo, add your local IPv4 address to `.env`.
+
+Example:
+
+```env
+ALLOWED_HOSTS=127.0.0.1,localhost,192.168.1.45
+```
+
+Find your local IPv4 address on Windows:
+
+```powershell
+ipconfig
+```
+
+Start the server on all local network interfaces:
+
+```powershell
+python manage.py runserver 0.0.0.0:8000
+```
+
+Other devices on the same network can open:
+
+```text
+http://YOUR_LOCAL_IP:8000/
+```
+
+This is only for local demo/development, not production deployment. If Windows Firewall blocks access, allow Python/Django through the firewall or allow port `8000` temporarily.
+
+## Implemented Use Cases
+
+- UC-01 Register User
+- UC-02 Search Facility
+- UC-03 View Field Availability
+- UC-04 Create Pending Booking
+- UC-05 Pay Pending Booking
+- UC-06 Modify Confirmed Booking
+- UC-07 Cancel Confirmed Booking
+- UC-08 Manage Booking Rules
+- UC-09 Manage Cancellation Policy
+- UC-10 Submit Facility
+- UC-11 Create or Update Field
+- UC-12 Create or Update Field Slots
+- UC-13 Declare Temporary Field Unavailability
+- UC-14 Approve Facility Submission
 
 ## Authentication and Roles
 

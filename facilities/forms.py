@@ -33,13 +33,23 @@ class BookingRulesForm(forms.ModelForm):
     price_amount = forms.DecimalField(
         label="Price amount (€)",
         decimal_places=2,
+        min_value=0,
         widget=forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
     )
     start_time = forms.TimeField(label="Start time")
     end_time = forms.TimeField(label="End time")
-    min_notice_hours = forms.IntegerField(label="Minimum notice before booking (hours)")
-    max_duration_minutes = forms.IntegerField(label="Maximum booking duration (minutes)")
-    modification_limit = forms.IntegerField(label="Maximum booking modifications")
+    min_notice_hours = forms.IntegerField(
+        label="Minimum notice before booking (hours)",
+        min_value=0,
+    )
+    max_duration_minutes = forms.IntegerField(
+        label="Maximum booking duration (minutes)",
+        min_value=1,
+    )
+    modification_limit = forms.IntegerField(
+        label="Maximum booking modifications",
+        min_value=0,
+    )
 
     class Meta:
         model = BookingRules

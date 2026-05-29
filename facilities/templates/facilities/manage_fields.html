@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="h3 mb-2">UC-11 Create or Update Field</h1>
+<h1 class="h3 mb-2">Manage Fields</h1>
 <p class="mb-4">{{ facility.name }}</p>
 
 <div class="row g-4">
@@ -29,10 +29,10 @@
                                 Edit
                             </a>
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_field_slots' field_id=field.id %}">
-                                UC-12 Slots
+                                Slots
                             </a>
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_unavailability' field_id=field.id %}">
-                                UC-13 Unavailability
+                                Unavailability
                             </a>
                         </td>
                     </tr>

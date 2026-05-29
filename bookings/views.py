@@ -17,6 +17,13 @@ from .services import (
 )
 
 
+def _parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 @user_required
 def my_bookings(request):
     bookings = (
@@ -29,7 +36,11 @@ def my_bookings(request):
 
 @user_required
 def create_booking(request):
-    slot_id = request.POST.get("slot_id") if request.method == "POST" else request.GET.get("slot_id")
+    slot_id = _parse_int(
+        request.POST.get("slot_id")
+        if request.method == "POST"
+        else request.GET.get("slot_id")
+    )
     if not slot_id:
         messages.error(request, "Please select an available slot before creating a booking.")
         return redirect("facilities:search")

@@ -6,7 +6,7 @@
         <h1 class="h3 mb-1">Facility Manager Dashboard</h1>
         <p class="mb-0">Welcome, {{ user.username }}.</p>
     </div>
-    <a class="btn btn-primary" href="{% url 'facilities:manager_new' %}">UC-10 Submit Facility</a>
+    <a class="btn btn-primary" href="{% url 'facilities:manager_new' %}">Submit Facility</a>
 </div>
 
 {% if facilities %}
@@ -28,13 +28,13 @@
                 <td>{{ facility.status }}</td>
                 <td class="d-flex flex-wrap gap-2">
                     <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_rules' facility_id=facility.id %}">
-                        UC-08 Rules
+                        Booking Rules
                     </a>
                     <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_cancellation_policy' facility_id=facility.id %}">
-                        UC-09 Policy
+                        Cancellation Policy
                     </a>
                     <a class="btn btn-sm btn-outline-primary" href="{% url 'facilities:manage_fields' facility_id=facility.id %}">
-                        UC-11 Fields
+                        Fields
                     </a>
                 </td>
             </tr>

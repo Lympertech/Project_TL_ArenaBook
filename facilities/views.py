@@ -30,6 +30,13 @@ from .services import (
 )
 
 
+def _parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def search_facilities_view(request):
     location = request.GET.get("location", "").strip()
     sport_type = request.GET.get("sport_type", "").strip()
@@ -79,7 +86,9 @@ def search_facilities_view(request):
 
 def facility_detail_view(request, facility_id):
     facility = get_object_or_404(
-        Facility.objects.prefetch_related("fields"),
+        Facility.objects.prefetch_related(
+            Prefetch("fields", queryset=Field.objects.order_by("name"))
+        ),
         id=facility_id,
         status=Facility.Status.ACTIVE,
     )
@@ -163,12 +172,20 @@ def manage_fields_view(request, facility_id):
     facility = get_object_or_404(Facility, id=facility_id, manager=request.user)
     editing_field = None
 
-    edit_field_id = request.GET.get("edit")
+    raw_edit_field_id = request.GET.get("edit")
+    edit_field_id = _parse_int(raw_edit_field_id)
+    if raw_edit_field_id and edit_field_id is None:
+        messages.error(request, "Please select a valid field.")
+        return redirect("facilities:manage_fields", facility_id=facility.id)
     if edit_field_id:
         editing_field = get_object_or_404(Field, id=edit_field_id, facility=facility)
 
     if request.method == "POST":
-        field_id = request.POST.get("field_id")
+        raw_field_id = request.POST.get("field_id")
+        field_id = _parse_int(raw_field_id)
+        if raw_field_id and field_id is None:
+            messages.error(request, "Please select a valid field.")
+            return redirect("facilities:manage_fields", facility_id=facility.id)
         if field_id:
             editing_field = get_object_or_404(Field, id=field_id, facility=facility)
         form = FieldForm(request.POST, instance=editing_field)
@@ -209,12 +226,20 @@ def manage_slots_view(request, field_id):
     )
     editing_slot = None
 
-    edit_slot_id = request.GET.get("edit")
+    raw_edit_slot_id = request.GET.get("edit")
+    edit_slot_id = _parse_int(raw_edit_slot_id)
+    if raw_edit_slot_id and edit_slot_id is None:
+        messages.error(request, "Please select a valid slot.")
+        return redirect("facilities:manage_field_slots", field_id=field.id)
     if edit_slot_id:
         editing_slot = get_object_or_404(Slot, id=edit_slot_id, field=field)
 
     if request.method == "POST":
-        slot_id = request.POST.get("slot_id")
+        raw_slot_id = request.POST.get("slot_id")
+        slot_id = _parse_int(raw_slot_id)
+        if raw_slot_id and slot_id is None:
+            messages.error(request, "Please select a valid slot.")
+            return redirect("facilities:manage_field_slots", field_id=field.id)
         if slot_id:
             editing_slot = get_object_or_404(Slot, id=slot_id, field=field)
         form = SlotForm(request.POST, instance=editing_slot)
@@ -336,9 +361,14 @@ def declare_unavailability_view(request, field_id):
 @system_admin_required
 def pending_facilities_view(request):
     if request.method == "POST":
+        facility_id = _parse_int(request.POST.get("facility_id"))
+        if not facility_id:
+            messages.error(request, "Please select a valid facility.")
+            return redirect("facilities:admin_pending")
+
         facility = get_object_or_404(
             Facility,
-            id=request.POST.get("facility_id"),
+            id=facility_id,
             status=Facility.Status.PENDING,
         )
         action = request.POST.get("action")
@@ -348,6 +378,8 @@ def pending_facilities_view(request):
         elif action == "reject":
             facility.status = Facility.Status.REJECTED
             facility.save()
+        else:
+            messages.error(request, "Please select a valid approval action.")
         return redirect("facilities:admin_pending")
 
     pending_facilities = (
@@ -359,7 +391,7 @@ def pending_facilities_view(request):
         request,
         "facilities/pending_facilities.html",
         {
-            "title": "UC-14 Approve Facility Submission",
+            "title": "Approve Facilities",
             "pending_facilities": pending_facilities,
         },
     )

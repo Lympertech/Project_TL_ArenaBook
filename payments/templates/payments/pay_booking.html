@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="h3 mb-3">Pay Pending Booking</h1>
+<h1 class="h3 mb-3">Pay Booking</h1>
 
 {% if error_message %}
 <div class="alert alert-danger" role="alert">{{ error_message }}</div>
@@ -15,7 +15,7 @@
         <p class="mb-1"><strong>Start:</strong> {{ booking.slot.start_datetime|date:"d/m/Y H:i" }}</p>
         <p class="mb-1"><strong>End:</strong> {{ booking.slot.end_datetime|date:"d/m/Y H:i" }}</p>
         <p class="mb-1"><strong>Status:</strong> {{ booking.get_status_display }}</p>
-        <p class="mb-4"><strong>Amount:</strong> {{ booking.total_cost }} €</p>
+        <p class="mb-4"><strong>Amount:</strong> {{ booking.total_cost }} &euro;</p>
 
         <form method="post" class="d-inline">
             {% csrf_token %}

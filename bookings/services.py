@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils import timezone
 
 from accounts.models import User
@@ -168,17 +169,18 @@ def cancel_confirmed_booking(booking, user):
         raise ValidationError("Only confirmed bookings can be cancelled.")
 
     refund_amount = calculate_refund_amount(booking)
-    if refund_amount > Decimal("0.00"):
-        from payments.models import Payment
+    with transaction.atomic():
+        if refund_amount > Decimal("0.00"):
+            from payments.models import Payment
 
-        Payment.objects.create(
-            booking=booking,
-            amount=refund_amount,
-            status=Payment.Status.REFUNDED,
-            payment_type=Payment.PaymentType.REFUND,
-            payment_date=timezone.now(),
-        )
+            Payment.objects.create(
+                booking=booking,
+                amount=refund_amount,
+                status=Payment.Status.REFUNDED,
+                payment_type=Payment.PaymentType.REFUND,
+                payment_date=timezone.now(),
+            )
 
-    booking.status = Booking.Status.CANCELLED
-    booking.save()
+        booking.status = Booking.Status.CANCELLED
+        booking.save()
     return booking, refund_amount
