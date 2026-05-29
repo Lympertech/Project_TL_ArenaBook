@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.dateparse import parse_date
 
@@ -8,7 +7,14 @@ from accounts.decorators import user_required
 from facilities.models import Facility, Field, Slot
 from facilities.services import get_available_slots
 from .models import Booking
-from .services import calculate_booking_cost, create_pending_booking
+from .services import (
+    calculate_booking_cost,
+    calculate_refund_amount,
+    cancel_confirmed_booking,
+    create_pending_booking,
+    get_available_slots_for_modification,
+    modify_confirmed_booking,
+)
 
 
 @user_required
@@ -59,12 +65,105 @@ def create_booking(request):
 
 @user_required
 def modify_booking(request, booking_id):
-    return HttpResponse(f"UC-06 Modify Confirmed Booking {booking_id}")
+    booking = get_object_or_404(
+        Booking.objects.select_related("field__facility", "slot", "user"),
+        id=booking_id,
+        user=request.user,
+    )
+    if booking.status != Booking.Status.CONFIRMED:
+        messages.error(request, "Only confirmed bookings can be modified.")
+        return redirect("bookings:my_bookings")
+
+    error_message = None
+
+    if request.method == "POST":
+        new_slot_id = request.POST.get("new_slot_id")
+        new_slot = None
+        if new_slot_id:
+            try:
+                new_slot = (
+                    Slot.objects.select_related("field__facility")
+                    .filter(id=new_slot_id, field=booking.field)
+                    .first()
+                )
+            except (TypeError, ValueError):
+                new_slot = None
+        if not new_slot:
+            error_message = "Please select a valid slot."
+            messages.error(request, error_message)
+        else:
+            try:
+                modify_confirmed_booking(booking, new_slot, request.user)
+            except ValidationError as error:
+                error_message = error.messages[0]
+                messages.error(request, error_message)
+            else:
+                messages.success(request, "Booking modified.")
+                return redirect("bookings:my_bookings")
+
+    available_slots = get_available_slots_for_modification(booking)
+    return render(
+        request,
+        "bookings/modify_booking.html",
+        {
+            "booking": booking,
+            "available_slots": available_slots,
+            "error_message": error_message,
+        },
+    )
 
 
 @user_required
 def cancel_booking(request, booking_id):
-    return HttpResponse(f"UC-07 Cancel Confirmed Booking {booking_id}")
+    booking = get_object_or_404(
+        Booking.objects.select_related("field__facility", "slot", "user"),
+        id=booking_id,
+        user=request.user,
+    )
+    if booking.status != Booking.Status.CONFIRMED:
+        messages.error(request, "Only confirmed bookings can be cancelled.")
+        return redirect("bookings:my_bookings")
+
+    policy = getattr(booking.field.facility, "cancellation_policy", None)
+    error_message = None
+    refund_amount = None
+    can_cancel = True
+
+    try:
+        refund_amount = calculate_refund_amount(booking)
+    except ValidationError as error:
+        error_message = error.messages[0]
+        can_cancel = False
+
+    if request.method == "POST":
+        if not can_cancel:
+            messages.error(request, error_message)
+        else:
+            try:
+                booking, refund_amount = cancel_confirmed_booking(booking, request.user)
+            except ValidationError as error:
+                error_message = error.messages[0]
+                messages.error(request, error_message)
+                can_cancel = False
+            else:
+                messages.success(
+                    request,
+                    f"Booking cancelled and refund processed: {refund_amount}.",
+                )
+                return redirect("bookings:my_bookings")
+
+    return render(
+        request,
+        "bookings/cancel_booking.html",
+        {
+            "booking": booking,
+            "policy": policy,
+            "refund_amount": refund_amount,
+            "refund_amount_available": refund_amount is not None,
+            "can_cancel": can_cancel,
+            "error_message": error_message,
+        },
+    )
 
 
 @user_required

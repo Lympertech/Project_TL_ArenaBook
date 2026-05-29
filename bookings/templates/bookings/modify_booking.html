@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Modify Confirmed Booking</h1>
+
+{% if error_message %}
+<div class="alert alert-danger" role="alert">{{ error_message }}</div>
+{% endif %}
+
+<div class="card col-lg-7 mb-4">
+    <div class="card-body">
+        <h2 class="h5">Current Booking #{{ booking.id }}</h2>
+        <p class="mb-1"><strong>Facility:</strong> {{ booking.field.facility.name }}</p>
+        <p class="mb-1"><strong>Field:</strong> {{ booking.field.name }}</p>
+        <p class="mb-1"><strong>Current start:</strong> {{ booking.slot.start_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>Current end:</strong> {{ booking.slot.end_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-0"><strong>Status:</strong> {{ booking.get_status_display }}</p>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Available Alternative Slots</h2>
+
+{% if available_slots %}
+<form method="post">
+    {% csrf_token %}
+    <div class="table-responsive mb-3">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Start</th>
+                    <th>End</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in available_slots %}
+                <tr>
+                    <td>
+                        <input class="form-check-input" type="radio" name="new_slot_id" value="{{ slot.id }}" required>
+                    </td>
+                    <td>{{ slot.start_datetime|date:"d/m/Y H:i" }}</td>
+                    <td>{{ slot.end_datetime|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-primary" type="submit">Modify Booking</button>
+    <a class="btn btn-outline-secondary" href="{% url 'bookings:my_bookings' %}">Cancel</a>
+</form>
+{% else %}
+<p>No available slots for modification.</p>
+<a class="btn btn-outline-secondary" href="{% url 'bookings:my_bookings' %}">Back to My Bookings</a>
+{% endif %}
+{% endblock %}

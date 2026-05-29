@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="h3 mb-3">Cancel Confirmed Booking</h1>
+
+{% if error_message %}
+<div class="alert alert-danger" role="alert">{{ error_message }}</div>
+{% endif %}
+
+<div class="card col-lg-7 mb-4">
+    <div class="card-body">
+        <h2 class="h5">Booking #{{ booking.id }}</h2>
+        <p class="mb-1"><strong>Facility:</strong> {{ booking.field.facility.name }}</p>
+        <p class="mb-1"><strong>Field:</strong> {{ booking.field.name }}</p>
+        <p class="mb-1"><strong>Start:</strong> {{ booking.slot.start_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>End:</strong> {{ booking.slot.end_datetime|date:"d/m/Y H:i" }}</p>
+        <p class="mb-1"><strong>Total cost:</strong> {{ booking.total_cost }} &euro;</p>
+        <p class="mb-0"><strong>Status:</strong> {{ booking.get_status_display }}</p>
+    </div>
+</div>
+
+<div class="card col-lg-7 mb-4">
+    <div class="card-body">
+        <h2 class="h5">Cancellation Policy</h2>
+        {% if policy %}
+        <p class="mb-1"><strong>Deadline:</strong> {{ policy.cancellation_deadline_hours }} hours before slot start</p>
+        <p class="mb-1"><strong>Refund percentage:</strong> {{ policy.refund_percentage }}%</p>
+        {% else %}
+        <p class="mb-1">No cancellation policy found. Refund amount is 0.00 &euro;.</p>
+        {% endif %}
+        {% if refund_amount_available %}
+        <p class="mb-0"><strong>Estimated refund:</strong> {{ refund_amount }} &euro;</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if can_cancel %}
+<form method="post" class="d-inline">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Confirm Cancellation</button>
+</form>
+{% endif %}
+<a class="btn btn-outline-secondary" href="{% url 'bookings:my_bookings' %}">Back to My Bookings</a>
+{% endblock %}

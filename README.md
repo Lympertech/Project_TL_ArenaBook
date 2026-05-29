@@ -175,4 +175,17 @@ Payment is implemented as a mock flow:
 
 There is no real external payment integration.
 
-Booking modification, booking cancellation/refund, tests, and UI polishing will be implemented in later steps after the sequence diagrams and class diagram are verified.
+## Booking Modification and Cancellation
+
+The project now includes:
+
+- UC-06 Modify Confirmed Booking
+- UC-07 Cancel Confirmed Booking
+
+Only `CONFIRMED` bookings can be modified or cancelled. Pending and cancelled bookings are not handled by these flows.
+
+Booking modification changes the booking slot to another available slot for the same field. No additional payment for price differences is implemented.
+
+Booking cancellation uses the facility `CancellationPolicy`. If cancellation is allowed, the booking is marked `CANCELLED`. Refunds are mock refunds recorded through `Payment` with payment type `REFUND`; no real external refund integration exists.
+
+Tests and UI polishing will be implemented in later steps.
