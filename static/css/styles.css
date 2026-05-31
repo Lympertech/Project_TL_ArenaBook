@@ -1,7 +1,543 @@
-body {
-    background-color: #f8f9fa;
+/* ==========================================================================
+   ArenaBook — Design system
+   Πράσινο sports-booking theme βασισμένο στα mockups.
+   Δουλεύει πάνω από το Bootstrap (το base.html το φορτώνει), αλλά όλη η
+   εμφάνιση της εφαρμογής ορίζεται εδώ ώστε να μην εξαρτάται από CDN fonts.
+   ========================================================================== */
+
+:root {
+    --ab-green:        #2f6e4e;
+    --ab-green-600:    #2a6346;
+    --ab-green-700:    #245539;
+    --ab-green-800:    #1d4630;
+    --ab-green-soft:   #e9f1ec;
+    --ab-green-tint:   #f1f7f3;
+
+    --ab-slate:        #3c4a5c;   /* header στην αρχική */
+    --ab-slate-600:    #34404f;
+
+    --ab-amber:        #e0a82e;   /* προσφορά */
+    --ab-amber-700:    #c8941f;
+
+    --ab-bg:           #f3f5f7;
+    --ab-card:         #ffffff;
+    --ab-text:         #1f2a36;
+    --ab-muted:        #6b7785;
+    --ab-faint:        #9aa4af;
+    --ab-border:       #e4e8ec;
+    --ab-line:         #eef1f4;
+
+    --ab-danger:       #c0392b;
+    --ab-danger-soft:  #fdecea;
+    --ab-info-soft:    #eef4fb;
+    --ab-warn-soft:    #fdf6e6;
+
+    --ab-radius:       16px;
+    --ab-radius-sm:    12px;
+    --ab-pill:         999px;
+
+    --ab-shadow:       0 2px 14px rgba(20, 40, 30, 0.07);
+    --ab-shadow-lg:    0 10px 30px rgba(20, 40, 30, 0.12);
+
+    --ab-font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+               "Noto Sans", "DejaVu Sans", Roboto, Arial, sans-serif;
 }
 
-main {
-    min-height: 70vh;
+/* ----------------------------------------------------------------- Reset */
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--ab-bg);
+    color: var(--ab-text);
+    font-family: var(--ab-font);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+}
+
+a { color: var(--ab-green); text-decoration: none; }
+a:hover { color: var(--ab-green-700); }
+
+/* The Bootstrap navbar from base.html is hidden; we use our own app bar. */
+body > nav.navbar { display: none !important; }
+body > main.container { all: unset; }
+
+/* --------------------------------------------------------- App shell ---- */
+.ab-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--ab-bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+}
+body.ab-wide .ab-shell { max-width: 1040px; }
+
+.ab-main {
+    flex: 1 1 auto;
+    padding: 16px 16px 96px;
+    animation: ab-fade 0.35s ease both;
+}
+@keyframes ab-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ------------------------------------------------------------- App bar -- */
+.ab-appbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    color: #fff;
+    background: var(--ab-green);
+}
+.ab-appbar--slate { background: var(--ab-slate); }
+.ab-appbar__title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    margin: 0;
+    flex: 1 1 auto;
+    letter-spacing: 0.2px;
+}
+.ab-appbar a, .ab-appbar .ab-iconbtn {
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+}
+.ab-appbar a:hover, .ab-appbar .ab-iconbtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+.ab-appbar__back { margin-left: -6px; }
+.ab-appbar__actions { display: flex; gap: 4px; }
+.ab-icon { width: 22px; height: 22px; display: block; }
+
+/* -------------------------------------------------------- Bottom nav ---- */
+.ab-bottomnav {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #fff;
+    border-top: 1px solid var(--ab-line);
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.ab-bottomnav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ab-faint);
+    padding: 4px 0;
+}
+.ab-bottomnav a .ab-icon { width: 24px; height: 24px; }
+.ab-bottomnav a.is-active { color: var(--ab-green); }
+.ab-bottomnav a:hover { color: var(--ab-green); }
+
+/* -------------------------------------------------------------- Hero ---- */
+.ab-hero {
+    position: relative;
+    border-radius: var(--ab-radius);
+    overflow: hidden;
+    background: linear-gradient(180deg, #0d2235 0%, #133b2b 100%);
+    box-shadow: var(--ab-shadow);
+}
+.ab-hero svg.ab-hero__art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.ab-hero__pad   { position: relative; z-index: 2; padding: 20px; }
+.ab-hero--tall  { min-height: 200px; }
+.ab-hero--card  { min-height: 190px; }
+.ab-hero__scrim {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(90deg, rgba(8,20,14,.55) 0%, rgba(8,20,14,.05) 70%);
+}
+.ab-hero__headline {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 1.15;
+    max-width: 60%;
+    text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+
+/* avatar που κάθεται πάνω στο hero (οθόνη εγγραφής) */
+.ab-hero__avatar {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    width: 104px; height: 104px;
+    border-radius: 50%;
+    background: var(--ab-green-soft);
+    border: 5px solid #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+.ab-hero__avatar .ab-icon { width: 56px; height: 56px; color: var(--ab-green); }
+
+/* "+ Προσθήκη Φωτογραφίας" chip πάνω στο hero */
+.ab-hero__chip {
+    position: absolute;
+    left: 16px; bottom: 14px; z-index: 3;
+    background: var(--ab-green);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+}
+
+/* ----------------------------------------------------------- Sections --- */
+.ab-section-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--ab-text);
+    margin: 22px 2px 12px;
+}
+.ab-row-between {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ab-link-more {
+    font-weight: 600; color: var(--ab-green);
+    display: inline-flex; align-items: center; gap: 4px; font-size: 0.92rem;
+}
+
+/* -------------------------------------------------------------- Cards --- */
+.ab-card {
+    background: var(--ab-card);
+    border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow);
+    overflow: hidden;
+}
+.ab-card + .ab-card { margin-top: 14px; }
+.ab-card__body { padding: 16px; }
+
+/* "data list" μέσα σε κάρτα (ημ/νία, ώρα, παίκτες κ.λπ.) */
+.ab-list { display: flex; flex-direction: column; }
+.ab-list__row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-top: 1px solid var(--ab-line);
+}
+.ab-list__row:first-child { border-top: none; }
+.ab-list__ic {
+    width: 34px; height: 34px; flex: 0 0 34px;
+    border-radius: 10px;
+    background: var(--ab-green-soft);
+    color: var(--ab-green);
+    display: flex; align-items: center; justify-content: center;
+}
+.ab-list__ic .ab-icon { width: 19px; height: 19px; }
+.ab-list__txt { flex: 1 1 auto; font-weight: 600; color: var(--ab-text); }
+.ab-list__sub { font-weight: 400; color: var(--ab-muted); font-size: 0.86rem; }
+.ab-list__end { margin-left: auto; }
+
+/* κάρτα εγκατάστασης (banner εικόνα + τίτλος + badge) */
+.ab-facecard__title { font-size: 1.18rem; font-weight: 800; margin: 0; }
+.ab-facecard__meta  { color: var(--ab-muted); margin: 2px 0 0; font-size: 0.95rem; }
+
+/* λίστα δημοφιλών (μικρό thumb αριστερά) */
+.ab-listing {
+    display: flex; gap: 0;
+    background: #fff; border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow); overflow: hidden; margin-bottom: 14px;
+}
+.ab-listing__thumb {
+    width: 108px; flex: 0 0 108px; min-height: 116px;
+    background: linear-gradient(180deg,#0d2235,#133b2b);
+    position: relative; overflow: hidden;
+}
+.ab-listing__thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ab-listing__info { flex: 1 1 auto; padding: 12px 14px; }
+.ab-listing__name { font-weight: 800; font-size: 1.02rem; margin: 0; }
+.ab-listing__meta { color: var(--ab-muted); font-size: 0.85rem; margin: 2px 0 10px; }
+.ab-listing__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ------------------------------------------------------------ Badges ---- */
+.ab-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 16px;
+    border-radius: var(--ab-pill);
+    font-weight: 700; font-size: 0.85rem;
+    background: var(--ab-green); color: #fff;
+}
+.ab-badge--outline {
+    background: transparent; color: var(--ab-green);
+    border: 1.5px solid var(--ab-green);
+}
+.ab-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 12px; border-radius: var(--ab-pill);
+    font-size: 0.78rem; font-weight: 700;
+}
+.ab-chip--green  { background: var(--ab-green); color: #fff; }
+.ab-chip--amber  { background: var(--ab-amber); color: #fff; }
+.ab-chip--soft   { background: var(--ab-green-soft); color: var(--ab-green-700); }
+.ab-chip--slate  { background: var(--ab-slate); color: #fff; }
+
+.ab-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: var(--ab-pill);
+    font-size: 0.78rem; font-weight: 700; text-transform: none;
+}
+.ab-status--confirmed { background: var(--ab-green-soft); color: var(--ab-green-700); }
+.ab-status--pending   { background: var(--ab-warn-soft);  color: var(--ab-amber-700); }
+.ab-status--cancelled { background: var(--ab-danger-soft); color: var(--ab-danger); }
+.ab-status--neutral   { background: #eef1f4; color: var(--ab-muted); }
+
+/* ----------------------------------------------------------- Buttons ---- */
+.ab-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: 0.98rem;
+    padding: 13px 20px; border-radius: var(--ab-radius-sm);
+    transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+    text-align: center; line-height: 1;
+}
+.ab-btn:active { transform: translateY(1px); }
+.ab-btn--primary {
+    background: linear-gradient(180deg, var(--ab-green), var(--ab-green-700));
+    color: #fff; box-shadow: 0 6px 16px rgba(36, 85, 57, .28);
+}
+.ab-btn--primary:hover { color:#fff; box-shadow: 0 8px 20px rgba(36,85,57,.34); }
+.ab-btn--ghost {
+    background: #fff; color: var(--ab-green);
+    border: 1.5px solid var(--ab-green);
+}
+.ab-btn--ghost:hover { background: var(--ab-green-tint); color: var(--ab-green-700); }
+.ab-btn--slate {
+    background: var(--ab-slate); color: #fff;
+}
+.ab-btn--slate:hover { background: var(--ab-slate-600); color:#fff; }
+.ab-btn--amber { background: var(--ab-amber); color: #fff; }
+.ab-btn--amber:hover { background: var(--ab-amber-700); color:#fff; }
+.ab-btn--danger {
+    background: #fff; color: var(--ab-danger);
+    border: 1.5px solid var(--ab-danger);
+}
+.ab-btn--danger:hover { background: var(--ab-danger-soft); color: var(--ab-danger); }
+.ab-btn--danger-solid { background: var(--ab-danger); color:#fff; }
+.ab-btn--block { display: flex; width: 100%; }
+.ab-btn--sm { padding: 9px 14px; font-size: 0.85rem; border-radius: 10px; }
+.ab-btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+.ab-btn-row { display: flex; gap: 12px; margin-top: 8px; }
+.ab-btn-row > * { flex: 1 1 0; }
+
+/* ----------------------------------------------------------- Forms ------ */
+.ab-form .ab-field { margin-bottom: 16px; }
+.ab-form label,
+.ab-field__label {
+    display: block;
+    font-size: 0.92rem; font-weight: 600;
+    color: var(--ab-text); margin: 0 0 7px 2px;
+}
+.ab-input {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff;
+    border: 1.5px solid var(--ab-border);
+    border-radius: var(--ab-radius-sm);
+    padding: 0 14px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ab-input:focus-within {
+    border-color: var(--ab-green);
+    box-shadow: 0 0 0 3px rgba(47, 110, 78, .12);
+}
+.ab-input .ab-icon { width: 20px; height: 20px; color: var(--ab-green); flex: 0 0 20px; }
+.ab-input__suffix { color: var(--ab-green); display: inline-flex; }
+
+/* Generic styling για ΟΛΑ τα Django widgets (input/select/textarea),
+   ανεξάρτητα από classes — έτσι δουλεύει με {{ form }} ή {{ form.as_p }}. */
+.ab-form input,
+.ab-form select,
+.ab-form textarea,
+.ab-input input,
+.ab-input select,
+.ab-input textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ab-text);
+    padding: 13px 0;
+}
+.ab-form textarea { min-height: 90px; resize: vertical; }
+
+/* Όταν το form αποδίδεται με as_p (fallback), δώσε στα inputs πλαίσιο */
+.ab-form--raw p { margin: 0 0 16px; }
+.ab-form--raw label {
+    display: block; font-weight: 600; margin-bottom: 7px; color: var(--ab-text);
+}
+.ab-form--raw input,
+.ab-form--raw select,
+.ab-form--raw textarea {
+    width: 100%;
+    border: 1.5px solid var(--ab-border);
+    border-radius: var(--ab-radius-sm);
+    padding: 12px 14px;
+    background: #fff;
+}
+.ab-form--raw input:focus,
+.ab-form--raw select:focus,
+.ab-form--raw textarea:focus {
+    border-color: var(--ab-green);
+    box-shadow: 0 0 0 3px rgba(47,110,78,.12);
+}
+.ab-form--raw ul { margin: 6px 0 0; padding-left: 18px; color: var(--ab-muted); font-size: .85rem; }
+.ab-form--raw .helptext { display:block; color: var(--ab-muted); font-size: .82rem; margin-top: 5px; }
+.ab-form--raw .errorlist { color: var(--ab-danger); list-style: none; padding: 0; font-size: .85rem; }
+
+.ab-help  { font-size: 0.82rem; color: var(--ab-muted); margin: 6px 2px 0; }
+.ab-help--ok { color: var(--ab-green); font-weight: 600; display:flex; align-items:center; gap:6px; }
+.ab-error { font-size: 0.84rem; color: var(--ab-danger); margin: 6px 2px 0; }
+
+/* select με βελάκι δεξιά (μιμείται τα ">" των mockups) */
+.ab-input--select::after {
+    content: ""; width: 8px; height: 8px; margin-left: auto;
+    border-right: 2px solid var(--ab-faint);
+    border-bottom: 2px solid var(--ab-faint);
+    transform: rotate(-45deg);
+}
+
+/* ---------------------------------------------------------- Summary box - */
+.ab-summary {
+    background: #fff; border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow); overflow: hidden;
+}
+.ab-summary__head {
+    padding: 14px 16px; font-weight: 700; border-bottom: 1px solid var(--ab-line);
+}
+.ab-keyrow {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px;
+}
+.ab-keyrow + .ab-keyrow { border-top: 1px solid var(--ab-line); }
+.ab-keyrow__k { color: var(--ab-muted); }
+.ab-keyrow__v { font-weight: 700; }
+.ab-price { font-size: 1.5rem; font-weight: 800; color: var(--ab-green); }
+
+/* μέθοδοι πληρωμής */
+.ab-pay-card {
+    background: #fff; border: 1.5px solid var(--ab-border);
+    border-radius: var(--ab-radius-sm); padding: 16px;
+    font-size: 1.15rem; letter-spacing: 2px; color: var(--ab-text);
+}
+.ab-pay-logos { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+.ab-pay-logos .ab-logo {
+    height: 30px; padding: 4px 10px; border-radius: 8px;
+    background: #fff; border: 1px solid var(--ab-line);
+    display: inline-flex; align-items: center; font-weight: 800; font-size: .8rem;
+}
+.ab-logo--visa     { color: #1a1f71; }
+.ab-logo--mc       { color: #eb001b; }
+.ab-logo--paypal   { color: #003087; }
+
+/* ------------------------------------------------------------- Tables --- */
+.ab-table-wrap {
+    background:#fff; border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow); overflow: hidden;
+}
+.ab-table { width: 100%; border-collapse: collapse; }
+.ab-table th {
+    text-align: left; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--ab-muted);
+    padding: 12px 14px; background: var(--ab-green-tint);
+}
+.ab-table td { padding: 13px 14px; border-top: 1px solid var(--ab-line); vertical-align: middle; }
+.ab-table tr:hover td { background: #fbfdfc; }
+.ab-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* -------------------------------------------------------- Alerts -------- */
+.ab-alerts { margin-bottom: 14px; }
+.ab-alert {
+    border-radius: var(--ab-radius-sm); padding: 12px 14px;
+    font-size: .92rem; margin-bottom: 10px; font-weight: 500;
+    display: flex; gap: 10px; align-items: flex-start;
+}
+.ab-alert--info    { background: var(--ab-info-soft);   color: #2c5b86; }
+.ab-alert--success { background: var(--ab-green-soft);  color: var(--ab-green-700); }
+.ab-alert--warning { background: var(--ab-warn-soft);   color: var(--ab-amber-700); }
+.ab-alert--error   { background: var(--ab-danger-soft); color: var(--ab-danger); }
+
+/* -------------------------------------------------------- Utilities ----- */
+.ab-empty {
+    text-align: center; color: var(--ab-muted);
+    padding: 40px 20px; background:#fff; border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow);
+}
+.ab-empty .ab-icon { width: 40px; height: 40px; color: var(--ab-faint); margin-bottom: 8px; }
+.ab-muted { color: var(--ab-muted); }
+.ab-center { text-align: center; }
+.ab-mt   { margin-top: 16px; }
+.ab-mt-sm{ margin-top: 8px; }
+.ab-mb   { margin-bottom: 16px; }
+.ab-stack > * + * { margin-top: 12px; }
+
+/* κατηγορίες αθλημάτων (αρχική) */
+.ab-cats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background:#fff; border-radius: var(--ab-radius);
+    box-shadow: var(--ab-shadow); padding: 16px 8px; margin-top: 14px;
+}
+.ab-cat { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ab-cat + .ab-cat { border-left: 1px solid var(--ab-line); }
+.ab-cat__ball {
+    width: 60px; height: 60px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,.12);
+}
+.ab-cat__label { font-weight: 600; color: var(--ab-text); font-size: .9rem; }
+.ab-cat__ball--soccer  { background: #f3f3f3; }
+.ab-cat__ball--basket  { background: #e07b2f; }
+.ab-cat__ball--tennis  { background: #c6e34d; }
+
+/* search bar (αρχική) */
+.ab-search {
+    display: flex; gap: 10px; margin-top: 14px;
+}
+.ab-search__field {
+    flex: 1 1 auto; display: flex; align-items: center; gap: 10px;
+    background:#fff; border-radius: var(--ab-radius-sm);
+    border: 1.5px solid var(--ab-border); padding: 0 14px;
+}
+.ab-search__field .ab-icon { color: var(--ab-faint); width: 20px; height: 20px; }
+.ab-search__field input { border: none; outline: none; width:100%; padding: 13px 0; font-size: 1rem; background: transparent; }
+.ab-search__btn {
+    background:#fff; border: 1.5px solid var(--ab-border);
+    border-radius: var(--ab-radius-sm); font-weight: 700;
+    padding: 0 18px; cursor: pointer; color: var(--ab-text);
+}
+
+@media (min-width: 640px) {
+    .ab-main { padding: 22px 22px 96px; }
 }
