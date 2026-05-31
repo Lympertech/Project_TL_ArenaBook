@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Διαχείριση Slots · ArenaBook{% endblock %}
+{% block appbar_title %}Διαχείριση Slots{% endblock %}
+{% block appbar_back %}{% url 'facilities:manage_fields' facility_id=field.facility.id %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ field.facility.name }}</p>
+        <p class="ab-facecard__meta">{{ field.name }}</p>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Υπάρχοντα Slots</h2>
+{% if slots %}
+<div class="ab-card ab-mb">
+    <div class="ab-list">
+        {% for slot in slots %}
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="ab-list__txt">{{ slot.start_datetime|date:"d/m/Y H:i" }} - {{ slot.end_datetime|date:"H:i" }}</span>
+            <a class="ab-btn ab-btn--ghost ab-btn--sm ab-list__end" href="{% url 'facilities:manage_field_slots' field_id=field.id %}?edit={{ slot.id }}">Επεξεργασία</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="ab-empty ab-mb"><p>Δεν έχουν δημιουργηθεί slots ακόμη.</p></div>
+{% endif %}
+
+<h2 class="ab-section-title">{% if editing_slot %}Ενημέρωση Slot{% else %}Δημιουργία Slot{% endif %}</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form ab-form--raw" novalidate>
+            {% csrf_token %}
+            {% if editing_slot %}
+            <input type="hidden" name="slot_id" value="{{ editing_slot.id }}">
+            {% endif %}
+            {{ form.as_p }}
+            <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">
+                {% if editing_slot %}Ενημέρωση Slot{% else %}Δημιουργία Slot{% endif %}
+            </button>
+            {% if editing_slot %}
+            <a class="ab-btn ab-btn--ghost ab-btn--block ab-mt-sm" href="{% url 'facilities:manage_field_slots' field_id=field.id %}">Ακύρωση Επεξεργασίας</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="ab-btn-row">
+    <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:manage_fields' facility_id=field.facility.id %}">Πίσω στα Γήπεδα</a>
+    <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:manager_dashboard' %}">Πίνακας</a>
+</div>
+
+{% endblock %}

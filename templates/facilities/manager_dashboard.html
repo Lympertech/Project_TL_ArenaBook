@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Πίνακας Διαχειριστή · ArenaBook{% endblock %}
+{% block appbar_title %}Πίνακας Διαχειριστή{% endblock %}
+{% block appbar_back %}{% url 'home' %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body ab-stack">
+        <div>
+            <p class="ab-facecard__title">Καλώς ήρθες, {{ user.username }}</p>
+            <p class="ab-facecard__meta">Διαχείριση των εγκαταστάσεών σου</p>
+        </div>
+        <a class="ab-btn ab-btn--primary ab-btn--block" href="{% url 'facilities:manager_new' %}">+ Υποβολή Εγκατάστασης</a>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Οι Εγκαταστάσεις μου</h2>
+
+{% if facilities %}
+<div class="ab-stack">
+    {% for facility in facilities %}
+    <div class="ab-card">
+        <div class="ab-card__body ab-stack">
+            <div class="ab-row-between">
+                <div>
+                    <p class="ab-facecard__title">{{ facility.name }}</p>
+                    <p class="ab-facecard__meta">{{ facility.location }}</p>
+                </div>
+                <span class="ab-chip ab-chip--soft">{{ facility.status }}</span>
+            </div>
+            <div class="ab-actions">
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_rules' facility_id=facility.id %}">Κανόνες Κράτησης</a>
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_cancellation_policy' facility_id=facility.id %}">Πολιτική Ακύρωσης</a>
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_fields' facility_id=facility.id %}">Γήπεδα</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ab-empty">
+    <p>Δεν έχεις υποβάλει καμία εγκατάσταση ακόμη.</p>
+    <a class="ab-btn ab-btn--primary ab-mt-sm" href="{% url 'facilities:manager_new' %}">Υποβολή Εγκατάστασης</a>
+</div>
+{% endif %}
+
+<a class="ab-card ab-mt" href="{% url 'accounts:logout' %}" style="display:block;">
+    <div class="ab-list__row" style="border:none;">
+        <span class="ab-list__ic" style="background:var(--ab-danger-soft);color:var(--ab-danger);"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span class="ab-list__txt" style="color:var(--ab-danger);">Αποσύνδεση</span>
+    </div>
+</a>
+
+{% endblock %}

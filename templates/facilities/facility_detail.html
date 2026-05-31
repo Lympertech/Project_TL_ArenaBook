@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ facility.name }} · ArenaBook{% endblock %}
+{% block appbar_title %}{{ facility.name }}{% endblock %}
+{% block appbar_back %}{% url 'facilities:search' %}{% endblock %}
+{% block nav_fav %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-hero ab-hero--card" style="border-radius:0;min-height:170px;">{% include "partials/ab_hero.html" %}</div>
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ facility.name }}</p>
+        <p class="ab-facecard__meta">
+            <svg class="ab-icon" style="width:15px;height:15px;display:inline;vertical-align:-2px;color:var(--ab-green);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{ facility.location }}
+        </p>
+        {% if facility.description %}<p class="ab-muted" style="margin:8px 0 0;">{{ facility.description }}</p>{% endif %}
+    </div>
+</div>
+
+<h2 class="ab-section-title">Γήπεδα</h2>
+{% for field in facility.fields.all %}
+<div class="ab-card ab-mb">
+    <div class="ab-card__body ab-row-between">
+        <div>
+            <p class="ab-listing__name">{{ field.name }}</p>
+            <p class="ab-listing__meta" style="margin:2px 0 0;">{{ field.sport_type }} · {{ field.surface_type }}</p>
+        </div>
+        <a class="ab-btn ab-btn--slate ab-btn--sm" href="{% url 'bookings:field_availability' field_id=field.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">Διαθέσιμες Ώρες ›</a>
+    </div>
+</div>
+{% empty %}
+<div class="ab-empty">
+    <p style="margin:0;">Δεν υπάρχουν διαθέσιμα γήπεδα για αυτή την εγκατάσταση.</p>
+</div>
+{% endfor %}
+
+<a class="ab-btn ab-btn--ghost ab-btn--block ab-mt" href="{% url 'facilities:search' %}">Πίσω στην Αναζήτηση</a>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Τροποποίηση Κράτησης · ArenaBook{% endblock %}
+{% block appbar_title %}Τροποποίηση Κράτησης{% endblock %}
+{% block appbar_back %}{% url 'bookings:my_bookings' %}{% endblock %}
+{% block nav_bookings %}is-active{% endblock %}
+
+{% block content %}
+
+{% if error_message %}
+<div class="ab-alert ab-alert--error">{{ error_message }}</div>
+{% endif %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body ab-stack">
+        <div class="ab-row-between">
+            <div>
+                <p class="ab-facecard__title">{{ booking.field.facility.name }}</p>
+                <p class="ab-facecard__meta">{{ booking.field.name }}</p>
+            </div>
+            <span class="ab-status ab-status--{% if booking.status == 'CONFIRMED' %}confirmed{% elif booking.status == 'PENDING' %}pending{% elif booking.status == 'CANCELLED' %}cancelled{% else %}neutral{% endif %}">
+                {{ booking.get_status_display }}
+            </span>
+        </div>
+        <div class="ab-keyrow" style="padding:0;">
+            <span class="ab-keyrow__k">Τρέχουσα ώρα</span>
+            <span class="ab-keyrow__v">{{ booking.slot.start_datetime|date:"d/m/Y H:i" }} - {{ booking.slot.end_datetime|date:"H:i" }}</span>
+        </div>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Διαθέσιμες Εναλλακτικές Ώρες</h2>
+
+{% if available_slots %}
+<form method="post">
+    {% csrf_token %}
+    <div class="ab-stack ab-mb">
+        {% for slot in available_slots %}
+        <label class="ab-card" style="cursor:pointer;">
+            <div class="ab-card__body ab-row-between" style="gap:.75rem;">
+                <span class="ab-list__txt">
+                    {{ slot.start_datetime|date:"l, d M Y" }}<br>
+                    <span class="ab-muted">{{ slot.start_datetime|date:"H:i" }} - {{ slot.end_datetime|date:"H:i" }}</span>
+                </span>
+                <input type="radio" name="new_slot_id" value="{{ slot.id }}" required style="width:1.25rem;height:1.25rem;accent-color:var(--ab-green);">
+            </div>
+        </label>
+        {% endfor %}
+    </div>
+    <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">Τροποποίηση Κράτησης</button>
+    <a class="ab-btn ab-btn--ghost ab-btn--block ab-mt-sm" href="{% url 'bookings:my_bookings' %}">Ακύρωση</a>
+</form>
+{% else %}
+<div class="ab-empty">
+    <p>Δεν υπάρχουν διαθέσιμες ώρες για τροποποίηση.</p>
+    <a class="ab-btn ab-btn--ghost ab-mt-sm" href="{% url 'bookings:my_bookings' %}">Πίσω στις Κρατήσεις</a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Προσωρινή Μη Διαθεσιμότητα · ArenaBook{% endblock %}
+{% block appbar_title %}Μη Διαθεσιμότητα{% endblock %}
+{% block appbar_back %}{% url 'facilities:manage_fields' facility_id=field.facility.id %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ field.facility.name }}</p>
+        <p class="ab-facecard__meta">{{ field.name }}</p>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Δηλωμένη Μη Διαθεσιμότητα</h2>
+{% if unavailabilities %}
+<div class="ab-card ab-mb">
+    <div class="ab-list">
+        {% for unavailability in unavailabilities %}
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></span>
+            <span class="ab-list__txt">
+                {{ unavailability.start_datetime|date:"d/m/Y H:i" }} - {{ unavailability.end_datetime|date:"d/m/Y H:i" }}
+                {% if unavailability.reason %}<br><span class="ab-muted">{{ unavailability.reason }}</span>{% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="ab-empty ab-mb"><p>Δεν έχει δηλωθεί μη διαθεσιμότητα ακόμη.</p></div>
+{% endif %}
+
+<h2 class="ab-section-title">Δήλωση Μη Διαθεσιμότητας</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form ab-form--raw" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">Αποθήκευση</button>
+        </form>
+    </div>
+</div>
+
+<div class="ab-btn-row">
+    <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:manage_fields' facility_id=field.facility.id %}">Πίσω στα Γήπεδα</a>
+    <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:manager_dashboard' %}">Πίνακας</a>
+</div>
+
+{% endblock %}

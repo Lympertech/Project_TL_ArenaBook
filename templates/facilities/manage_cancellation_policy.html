@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Πολιτική Ακύρωσης · ArenaBook{% endblock %}
+{% block appbar_title %}Πολιτική Ακύρωσης{% endblock %}
+{% block appbar_back %}{% url 'facilities:manager_dashboard' %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ facility.name }}</p>
+        <p class="ab-facecard__meta">Όρισε την προθεσμία ακύρωσης και το ποσοστό επιστροφής χρημάτων.</p>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Στοιχεία Πολιτικής</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form ab-form--raw" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">Αποθήκευση Πολιτικής</button>
+            <a class="ab-btn ab-btn--ghost ab-btn--block ab-mt-sm" href="{% url 'facilities:manager_dashboard' %}">Ακύρωση</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

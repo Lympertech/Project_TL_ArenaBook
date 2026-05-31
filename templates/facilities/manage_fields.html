@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Δημιουργία Γηπέδου · ArenaBook{% endblock %}
+{% block appbar_title %}{% if editing_field %}Επεξεργασία Γηπέδου{% else %}Δημιουργία Γηπέδου{% endif %}{% endblock %}
+{% block appbar_back %}{% url 'facilities:manager_dashboard' %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-hero ab-hero--card ab-mb" style="min-height:180px;">
+    {% include "partials/ab_hero.html" %}
+    <div class="ab-hero__scrim"></div>
+    <button type="button" class="ab-hero__chip">
+        <svg class="ab-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Προσθήκη Φωτογραφίας
+    </button>
+</div>
+
+<h2 class="ab-section-title">Στοιχεία Γηπέδου · {{ facility.name }}</h2>
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form" novalidate>
+            {% csrf_token %}
+            {% if editing_field %}
+            <input type="hidden" name="field_id" value="{{ editing_field.id }}">
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="ab-alert ab-alert--error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="ab-field">
+                <label class="ab-field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="ab-input">
+                    {% if field.name == 'sport_type' %}
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+                    {% elif field.name == 'surface_type' %}
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+                    {% else %}
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 11 3.8a2 2 0 0 0-1.4-.6H5a2 2 0 0 0-2 2v4.6a2 2 0 0 0 .6 1.4l9.6 9.6a2 2 0 0 0 2.8 0l4.6-4.6a2 2 0 0 0 0-2.8z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/></svg>
+                    {% endif %}
+                    {{ field }}
+                </div>
+                {% if field.help_text %}<div class="ab-help">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="ab-error">{{ error }}</div>{% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="ab-btn-row">
+                <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:manage_fields' facility_id=facility.id %}">Ακύρωση</a>
+                <button class="ab-btn ab-btn--primary" type="submit">
+                    {% if editing_field %}Ενημέρωση{% else %}Δημοσίευση{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Υπάρχοντα Γήπεδα</h2>
+{% if fields %}
+<div class="ab-stack">
+    {% for field in fields %}
+    <div class="ab-card">
+        <div class="ab-card__body">
+            <div class="ab-row-between ab-mb">
+                <div>
+                    <p class="ab-listing__name">{{ field.name }}</p>
+                    <p class="ab-listing__meta" style="margin:2px 0 0;">{{ field.sport_type }} · {{ field.surface_type }}</p>
+                </div>
+            </div>
+            <div class="ab-actions">
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_fields' facility_id=facility.id %}?edit={{ field.id }}">Επεξεργασία</a>
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_field_slots' field_id=field.id %}">Ώρες (Slots)</a>
+                <a class="ab-btn ab-btn--ghost ab-btn--sm" href="{% url 'facilities:manage_unavailability' field_id=field.id %}">Μη Διαθεσιμότητα</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ab-empty">
+    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="12" rx="2"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+    <p style="margin:0;">Δεν έχουν δημιουργηθεί γήπεδα ακόμη.</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Υποβολή Εγκατάστασης · ArenaBook{% endblock %}
+{% block appbar_title %}Υποβολή Εγκατάστασης{% endblock %}
+{% block appbar_back %}{% url 'facilities:manager_dashboard' %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<h2 class="ab-section-title">Στοιχεία Εγκατάστασης</h2>
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form ab-form--raw" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">Υποβολή Εγκατάστασης</button>
+            <a class="ab-btn ab-btn--ghost ab-btn--block ab-mt-sm" href="{% url 'facilities:manager_dashboard' %}">Ακύρωση</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

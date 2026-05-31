@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Σύνδεση · ArenaBook{% endblock %}
+{% block appbar_title %}Σύνδεση{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+<div class="ab-hero ab-hero--card ab-mb" style="min-height:160px;">
+    {% include "partials/ab_hero.html" %}
+    <div class="ab-hero__scrim"></div>
+    <div class="ab-hero__avatar">
+        <svg class="ab-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;background:#fff;padding:14px;">
+        <strong style="font-size:1.15rem;color:var(--ab-text);">Καλώς ήρθες πίσω!</strong>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Σύνδεση</h2>
+
+<div class="ab-card">
+    <div class="ab-card__body">
+        <form method="post" class="ab-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="ab-alert ab-alert--error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="ab-field">
+                <label class="ab-field__label" for="{{ field.id_for_label }}">
+                    {% if field.name == 'username' %}Όνομα χρήστη
+                    {% elif field.name == 'password' %}Κωδικός Πρόσβασης
+                    {% else %}{{ field.label }}{% endif %}
+                </label>
+                <div class="ab-input">
+                    {% if field.name == 'username' %}
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>
+                    {% else %}
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    {% endif %}
+                    {{ field }}
+                    {% if field.name == 'password' %}
+                    <button type="button" class="ab-input__suffix" data-toggle-pw aria-label="Εμφάνιση κωδικού" style="background:none;border:none;cursor:pointer;padding:0;">
+                        <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    {% endif %}
+                </div>
+                {% for error in field.errors %}
+                <div class="ab-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <button class="ab-btn ab-btn--primary ab-btn--block" type="submit">Σύνδεση</button>
+
+            <p class="ab-center ab-mt" style="margin-bottom:0;">
+                Δεν έχεις λογαριασμό; <a href="{% url 'accounts:register' %}"><strong>Δημιουργία</strong></a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('[data-toggle-pw]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var input = btn.parentElement.querySelector('input');
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Αναζήτηση Γηπέδων · ArenaBook{% endblock %}
+{% block appbar_title %}Αναζήτηση Γηπέδων{% endblock %}
+{% block nav_fav %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="get" class="ab-form" style="margin:0;">
+            <div class="ab-field">
+                <label class="ab-field__label" for="location">Περιοχή</label>
+                <div class="ab-input">
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <input id="location" name="location" value="{{ location }}" placeholder="π.χ. Αθήνα">
+                </div>
+            </div>
+            <div class="ab-field">
+                <label class="ab-field__label" for="sport_type">Άθλημα</label>
+                <div class="ab-input">
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+                    <input id="sport_type" name="sport_type" value="{{ sport_type }}" placeholder="π.χ. Football">
+                </div>
+            </div>
+            <div class="ab-field">
+                <label class="ab-field__label" for="date">Ημερομηνία</label>
+                <div class="ab-input">
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <input id="date" name="date" type="date" value="{{ date_value }}">
+                </div>
+            </div>
+            <div class="ab-btn-row">
+                <a class="ab-btn ab-btn--ghost" href="{% url 'facilities:search' %}">Καθαρισμός</a>
+                <button class="ab-btn ab-btn--primary" type="submit">Αναζήτηση</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if invalid_date %}
+<div class="ab-alert ab-alert--error">Χρησιμοποίησε έγκυρη ημερομηνία.</div>
+{% endif %}
+
+{% if facilities %}
+<h2 class="ab-section-title">Αποτελέσματα</h2>
+{% for facility in facilities %}
+<div class="ab-card ab-mb">
+    <div class="ab-hero ab-hero--card" style="border-radius:0;min-height:130px;">{% include "partials/ab_hero.html" %}</div>
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ facility.name }}</p>
+        <p class="ab-facecard__meta">{{ facility.location }}</p>
+        {% if facility.description %}<p class="ab-muted" style="margin:8px 0 0;">{{ facility.description }}</p>{% endif %}
+
+        {% if facility.search_fields %}
+        <div class="ab-stack ab-mt">
+            {% for field in facility.search_fields %}
+            <div class="ab-row-between" style="padding:10px 0;border-top:1px solid var(--ab-line);">
+                <span><strong>{{ field.name }}</strong><br><span class="ab-muted" style="font-size:.85rem;">{{ field.sport_type }} · {{ field.surface_type }}</span></span>
+                <a class="ab-btn ab-btn--slate ab-btn--sm" href="{% url 'bookings:field_availability' field_id=field.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">Διαθέσιμες Ώρες ›</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="ab-muted ab-mt">Δεν βρέθηκαν γήπεδα.</p>
+        {% endif %}
+
+        <a class="ab-btn ab-btn--ghost ab-btn--block ab-mt" href="{% url 'facilities:detail' facility_id=facility.id %}{% if date_value %}?date={{ date_value|urlencode }}{% endif %}">Λεπτομέρειες</a>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="ab-empty">
+    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p style="margin:0;">Δεν βρέθηκαν γήπεδα.</p>
+</div>
+{% endif %}
+
+{% endblock %}

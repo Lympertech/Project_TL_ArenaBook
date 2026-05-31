@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Διαθεσιμότητα · ArenaBook{% endblock %}
+{% block appbar_title %}Διαθέσιμες Ώρες{% endblock %}
+{% block appbar_back %}{% url 'facilities:detail' facility_id=field.facility.id %}{% endblock %}
+{% block nav_fav %}is-active{% endblock %}
+
+{% block content %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <p class="ab-facecard__title">{{ field.facility.name }}</p>
+        <p class="ab-facecard__meta">{{ field.name }} · {{ field.sport_type }} · {{ field.surface_type }}</p>
+    </div>
+</div>
+
+<div class="ab-card ab-mb">
+    <div class="ab-card__body">
+        <form method="get" class="ab-form" style="margin:0;">
+            <div class="ab-field" style="margin:0;">
+                <label class="ab-field__label" for="date">Ημερομηνία</label>
+                <div class="ab-input">
+                    <svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <input id="date" name="date" type="date" value="{{ date_value }}">
+                </div>
+            </div>
+            <div class="ab-btn-row">
+                <a class="ab-btn ab-btn--ghost" href="{% url 'bookings:field_availability' field_id=field.id %}">Καθαρισμός</a>
+                <button class="ab-btn ab-btn--primary" type="submit">Φιλτράρισμα</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if invalid_date %}
+<div class="ab-alert ab-alert--error">Χρησιμοποίησε έγκυρη ημερομηνία.</div>
+{% endif %}
+
+<h2 class="ab-section-title">Διαθέσιμα Slots</h2>
+{% if available_slots %}
+<div class="ab-stack">
+    {% for slot in available_slots %}
+    <div class="ab-card">
+        <div class="ab-card__body ab-row-between">
+            <div>
+                <p style="margin:0;font-weight:700;">{{ slot.start_datetime|date:"l, d M Y" }}</p>
+                <p class="ab-muted" style="margin:2px 0 0;">{{ slot.start_datetime|date:"H:i" }} - {{ slot.end_datetime|date:"H:i" }}</p>
+            </div>
+            <a class="ab-btn ab-btn--primary ab-btn--sm" href="{% url 'bookings:create_booking' %}?slot_id={{ slot.id }}">Κράτηση</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ab-empty"><p style="margin:0;">Δεν υπάρχουν διαθέσιμα slots.</p></div>
+{% endif %}
+
+{% endblock %}

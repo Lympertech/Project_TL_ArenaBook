@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · ArenaBook{% endblock %}
+{% block appbar_title %}{{ title }}{% endblock %}
+{% block appbar_back %}{% url 'home' %}{% endblock %}
+{% block nav_profile %}is-active{% endblock %}
+
+{% block content %}
+
+<h2 class="ab-section-title">{{ title }}</h2>
+
+{% if pending_facilities %}
+<div class="ab-stack">
+    {% for facility in pending_facilities %}
+    <div class="ab-card">
+        <div class="ab-card__body ab-stack">
+            <div>
+                <p class="ab-facecard__title">{{ facility.name }}</p>
+                <p class="ab-facecard__meta">{{ facility.location }} · {{ facility.manager.username }}</p>
+            </div>
+            <div class="ab-btn-row">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="facility_id" value="{{ facility.id }}">
+                    <button class="ab-btn ab-btn--primary ab-btn--block" type="submit" name="action" value="approve">Έγκριση</button>
+                </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="facility_id" value="{{ facility.id }}">
+                    <button class="ab-btn ab-btn--danger ab-btn--block" type="submit" name="action" value="reject">Απόρριψη</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ab-empty"><p>Δεν υπάρχουν εκκρεμείς υποβολές εγκαταστάσεων.</p></div>
+{% endif %}
+
+<a class="ab-card ab-mt" href="{% url 'accounts:logout' %}" style="display:block;">
+    <div class="ab-list__row" style="border:none;">
+        <span class="ab-list__ic" style="background:var(--ab-danger-soft);color:var(--ab-danger);"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span class="ab-list__txt" style="color:var(--ab-danger);">Αποσύνδεση</span>
+    </div>
+</a>
+
+{% endblock %}

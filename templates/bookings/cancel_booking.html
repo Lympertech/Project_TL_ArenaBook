@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Στοιχεία Κράτησης · ArenaBook{% endblock %}
+{% block appbar_title %}Στοιχεία Κράτησης{% endblock %}
+{% block appbar_back %}{% url 'bookings:my_bookings' %}{% endblock %}
+{% block nav_bookings %}is-active{% endblock %}
+
+{% block content %}
+
+{% if error_message %}
+<div class="ab-alert ab-alert--error">{{ error_message }}</div>
+{% endif %}
+
+<div class="ab-card ab-mb">
+    <div class="ab-hero ab-hero--card" style="border-radius:0;min-height:180px;">
+        {% include "partials/ab_hero.html" %}
+    </div>
+    <div class="ab-card__body ab-row-between">
+        <div>
+            <p class="ab-facecard__title">{{ booking.field.facility.name }}</p>
+            <p class="ab-facecard__meta">{{ booking.field.name }} · {{ booking.field.facility.location }}</p>
+        </div>
+        <span class="ab-status ab-status--{% if booking.status == 'CONFIRMED' %}confirmed{% elif booking.status == 'PENDING' %}pending{% elif booking.status == 'CANCELLED' %}cancelled{% else %}neutral{% endif %}">
+            {{ booking.get_status_display }}
+        </span>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Πληροφορίες Κράτησης</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-list">
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>
+            <span class="ab-list__txt">{{ booking.slot.start_datetime|date:"l, d M Y" }}</span>
+        </div>
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            <span class="ab-list__txt">{{ booking.slot.start_datetime|date:"H:i" }} - {{ booking.slot.end_datetime|date:"H:i" }}</span>
+        </div>
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21v-2a4 4 0 0 1 4-4h4M14 7a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/><circle cx="18" cy="8" r="3"/><path d="M22 21v-2a3 3 0 0 0-2-2.8"/></svg></span>
+            <span class="ab-list__txt">{{ booking.field.sport_type }} · {{ booking.field.name }}</span>
+        </div>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Πληροφορίες Γηπέδου</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-list">
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <span class="ab-list__txt">{{ booking.field.facility.location }}</span>
+        </div>
+        {% if booking.field.surface_type %}
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><line x1="12" y1="6" x2="12" y2="18"/></svg></span>
+            <span class="ab-list__txt">{{ booking.field.surface_type }}</span>
+        </div>
+        {% endif %}
+        <div class="ab-list__row">
+            <span class="ab-list__ic"><svg class="ab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9a3 3 0 0 0-3-2c-1.7 0-3 1-3 2.3 0 2.7 6 1.3 6 4 0 1.3-1.3 2.4-3 2.4a3 3 0 0 1-3-2"/></svg></span>
+            <span class="ab-list__txt">Κόστος</span>
+            <span class="ab-list__end ab-price" style="font-size:1.3rem;">€{{ booking.total_cost }}</span>
+        </div>
+    </div>
+</div>
+
+<h2 class="ab-section-title">Πολιτική Ακύρωσης</h2>
+<div class="ab-card ab-mb">
+    <div class="ab-card__body ab-stack">
+        {% if policy %}
+        <div class="ab-keyrow" style="padding:0;">
+            <span class="ab-keyrow__k">Προθεσμία ακύρωσης</span>
+            <span class="ab-keyrow__v">{{ policy.cancellation_deadline_hours }} ώρες πριν</span>
+        </div>
+        <div class="ab-keyrow" style="padding:0;">
+            <span class="ab-keyrow__k">Ποσοστό επιστροφής</span>
+            <span class="ab-keyrow__v">{{ policy.refund_percentage }}%</span>
+        </div>
+        {% else %}
+        <p class="ab-muted" style="margin:0;">Δεν υπάρχει πολιτική ακύρωσης. Επιστροφή χρημάτων: €0.00.</p>
+        {% endif %}
+        {% if refund_amount_available %}
+        <div class="ab-keyrow" style="padding:0;">
+            <span class="ab-keyrow__k">Εκτιμώμενη επιστροφή</span>
+            <span class="ab-keyrow__v" style="color:var(--ab-green);">€{{ refund_amount }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if can_cancel %}
+<form method="post">
+    {% csrf_token %}
+    <button class="ab-btn ab-btn--danger-solid ab-btn--block" type="submit">Ακύρωση Κράτησης</button>
+</form>
+{% endif %}
+<a class="ab-btn ab-btn--ghost ab-btn--block ab-mt-sm" href="{% url 'bookings:my_bookings' %}">Πίσω στις Κρατήσεις</a>
+
+{% endblock %}
